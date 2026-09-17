@@ -80,10 +80,14 @@ public partial class MainWindow : Window
 
         StatusTextBlock.Text = "Scanning...";
 
-        var results =
-            await _scanService.ScanAsync(
-                folder,
-                IncludeSubfoldersCheckBox.IsChecked == true);
+        var ignoredPaths =
+            await _databaseService.GetIgnoredPathsAsync();
+
+                var results =
+                    await _scanService.ScanAsync(
+                        folder,
+                        IncludeSubfoldersCheckBox.IsChecked == true,
+                        ignoredPaths);
 
         foreach (var result in results)
         {
