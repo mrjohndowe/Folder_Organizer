@@ -46,11 +46,11 @@
                        VerticalAlignment="Center"/>
 
             <Button Grid.Column="1"
-                    x:Name="AddRuleButton"
-                    Content="+ Add Custom Rule"
-                    Width="145"
-                    Height="34"
-                    IsEnabled="False"/>
+                x:Name="AddRuleButton"
+                Content="+ Add Custom Rule"
+                Width="145"
+                Height="34"
+                Click="AddRuleButton_Click"/>
         </Grid>
 
         <!-- Rules -->

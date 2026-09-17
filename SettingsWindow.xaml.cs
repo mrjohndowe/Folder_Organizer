@@ -31,6 +31,42 @@ public partial class SettingsWindow : Window
         await LoadRulesAsync();
     }
 
+    private async void AddRuleButton_Click(
+    object sender,
+    RoutedEventArgs e)
+    {
+        try
+        {
+            var newRuleId =
+                await _databaseService.AddCustomRuleAsync(
+                    "New Folder",
+                    string.Empty);
+
+            await LoadRulesAsync();
+
+            var newRule =
+                _rules.FirstOrDefault(
+                    x => x.Id == newRuleId);
+
+            if (newRule != null)
+            {
+                RulesDataGrid.SelectedItem = newRule;
+                RulesDataGrid.ScrollIntoView(newRule);
+            }
+
+            StatusTextBlock.Text =
+                "Custom rule added.";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"The custom rule could not be added.\n\n{ex.Message}",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+    }
+
     private async Task LoadRulesAsync()
     {
         _rules.Clear();
