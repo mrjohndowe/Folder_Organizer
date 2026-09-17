@@ -9,8 +9,13 @@
 
     <ApplicationManifest>app.manifest</ApplicationManifest>
 
-    <AssemblyName>FolderOrganizer</AssemblyName>
-    <RootNamespace>FolderOrganizer</RootNamespace>
+	  <AssemblyName>FolderOrganizer</AssemblyName>
+	  <RootNamespace>FolderOrganizer</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+	  <Page Remove="Organizer\**\*.xaml" />
+	  <Compile Remove="Organizer\**\*.cs" />
+  </ItemGroup>
 
 </Project>
