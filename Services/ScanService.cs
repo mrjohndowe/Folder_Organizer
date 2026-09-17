@@ -32,10 +32,15 @@ public class ScanService
 
     public Task<List<MoveOperation>> ScanAsync(
         string rootFolder,
-        bool includeSubfolders)
+        bool includeSubfolders,
+        HashSet<string>? ignoredPaths = null)
     {
         return Task.Run(() =>
         {
+            ignoredPaths ??=
+                new HashSet<string>(
+                    StringComparer.OrdinalIgnoreCase);
+
             var results = new List<MoveOperation>();
 
             if (!Directory.Exists(rootFolder))
@@ -50,7 +55,8 @@ public class ScanService
                 rootDirectory,
                 rootFolder,
                 includeSubfolders,
-                results);
+                results,
+                ignoredPaths);
 
             return results
                 .OrderBy(x => x.IsDirectory ? 0 : 1)
@@ -64,7 +70,8 @@ public class ScanService
         DirectoryInfo directory,
         string rootFolder,
         bool includeSubfolders,
-        List<MoveOperation> results)
+        List<MoveOperation> results,
+        HashSet<string> ignoredPaths)
     {
         FileSystemInfo[] entries;
 
@@ -126,7 +133,8 @@ public class ScanService
                             subdirectory,
                             rootFolder,
                             true,
-                            results);
+                            results,
+                            ignoredPaths);
                     }
                 }
                 else if (entry is FileInfo file)

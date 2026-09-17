@@ -196,6 +196,94 @@ public class DatabaseService
         return entries;
     }
 
+    public async Task<HashSet<string>> GetIgnoredPathsAsync()
+    {
+        var paths =
+            new HashSet<string>(
+                StringComparer.OrdinalIgnoreCase);
+
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+
+        command.CommandText =
+        """
+    SELECT FullPath
+    FROM IgnoredItems;
+    """;
+
+        await using var reader =
+            await command.ExecuteReaderAsync();
+
+        while (await reader.ReadAsync())
+        {
+            paths.Add(reader.GetString(0));
+        }
+
+        return paths;
+    }
+
+    public async Task AddIgnoredPathAsync(
+        string fullPath)
+    {
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+
+        command.CommandText =
+        """
+    INSERT OR IGNORE INTO IgnoredItems
+    (
+        FullPath,
+        CreatedAt
+    )
+    VALUES
+    (
+        $fullPath,
+        $createdAt
+    );
+    """;
+
+        command.Parameters.AddWithValue(
+            "$fullPath",
+            fullPath);
+
+        command.Parameters.AddWithValue(
+            "$createdAt",
+            DateTime.UtcNow.ToString("O"));
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task RemoveIgnoredPathAsync(
+        string fullPath)
+    {
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+
+        command.CommandText =
+        """
+    DELETE FROM IgnoredItems
+    WHERE FullPath = $fullPath;
+    """;
+
+        command.Parameters.AddWithValue(
+            "$fullPath",
+            fullPath);
+
+        await command.ExecuteNonQueryAsync();
+    }
+
     public async Task InitializeAsync()
     {
         await using var connection =
