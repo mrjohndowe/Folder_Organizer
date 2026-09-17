@@ -50,6 +50,84 @@ public class DatabaseService
             }.ToString();
     }
 
+    public async Task<long> AddCustomRuleAsync(
+    string folderName,
+    string extensions)
+    {
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var priorityCommand =
+            connection.CreateCommand();
+
+        priorityCommand.CommandText =
+        """
+    SELECT COALESCE(MAX(Priority), 0) + 1
+    FROM CustomRules;
+    """;
+
+        var nextPriority =
+            Convert.ToInt32(
+                await priorityCommand.ExecuteScalarAsync());
+
+        var now =
+            DateTime.UtcNow.ToString("O");
+
+        var command =
+            connection.CreateCommand();
+
+        command.CommandText =
+        """
+    INSERT INTO CustomRules
+    (
+        FolderName,
+        Extensions,
+        Priority,
+        IsEnabled,
+        CreatedAt,
+        UpdatedAt
+    )
+    VALUES
+    (
+        $folderName,
+        $extensions,
+        $priority,
+        1,
+        $createdAt,
+        $updatedAt
+    );
+
+    SELECT last_insert_rowid();
+    """;
+
+        command.Parameters.AddWithValue(
+            "$folderName",
+            folderName);
+
+        command.Parameters.AddWithValue(
+            "$extensions",
+            extensions);
+
+        command.Parameters.AddWithValue(
+            "$priority",
+            nextPriority);
+
+        command.Parameters.AddWithValue(
+            "$createdAt",
+            now);
+
+        command.Parameters.AddWithValue(
+            "$updatedAt",
+            now);
+
+        var result =
+            await command.ExecuteScalarAsync();
+
+        return Convert.ToInt64(result);
+    }
+
     public async Task<List<CustomRule>> GetCustomRulesAsync()
     {
         var rules = new List<CustomRule>();
