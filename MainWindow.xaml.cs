@@ -154,11 +154,15 @@ public partial class MainWindow : Window
         var ignoredPaths =
             await _databaseService.GetIgnoredPathsAsync();
 
-                var results =
-                    await _scanService.ScanAsync(
-                        folder,
-                        IncludeSubfoldersCheckBox.IsChecked == true,
-                        ignoredPaths);
+        var customRules =
+            await _databaseService.GetCustomRulesAsync();
+
+        var results =
+            await _scanService.ScanAsync(
+                folder,
+                IncludeSubfoldersCheckBox.IsChecked == true,
+                ignoredPaths,
+                customRules);
 
         foreach (var result in results)
         {
