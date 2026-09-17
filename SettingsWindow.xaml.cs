@@ -3,6 +3,8 @@ using System.Windows;
 using System.Windows.Controls;
 using FolderOrganizer.Models;
 using FolderOrganizer.Services;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace FolderOrganizer;
 
@@ -11,6 +13,10 @@ public partial class SettingsWindow : Window
     private readonly DatabaseService _databaseService;
 
     private readonly ObservableCollection<CustomRule> _rules = [];
+
+    private Point _dragStartPoint;
+
+    private CustomRule? _draggedRule;
 
     private bool _isLoading;
 
@@ -24,6 +30,113 @@ public partial class SettingsWindow : Window
         RulesDataGrid.ItemsSource = _rules;
 
         Loaded += SettingsWindow_Loaded;
+    }
+
+    private void RulesDataGrid_PreviewMouseLeftButtonDown(
+    object sender,
+    MouseButtonEventArgs e)
+    {
+        _dragStartPoint =
+            e.GetPosition(null);
+
+        _draggedRule =
+            FindRuleFromSource(
+                e.OriginalSource as DependencyObject);
+    }
+
+    private void RulesDataGrid_PreviewMouseMove(
+        object sender,
+        MouseEventArgs e)
+    {
+        if (e.LeftButton != MouseButtonState.Pressed ||
+            _draggedRule == null)
+        {
+            return;
+        }
+
+        var currentPosition =
+            e.GetPosition(null);
+
+        var difference =
+            _dragStartPoint - currentPosition;
+
+        if (Math.Abs(difference.X) <
+                SystemParameters.MinimumHorizontalDragDistance &&
+            Math.Abs(difference.Y) <
+                SystemParameters.MinimumVerticalDragDistance)
+        {
+            return;
+        }
+
+        DragDrop.DoDragDrop(
+            RulesDataGrid,
+            _draggedRule,
+            DragDropEffects.Move);
+    }
+
+    private async void RulesDataGrid_Drop(
+        object sender,
+        DragEventArgs e)
+    {
+        if (_draggedRule == null)
+        {
+            return;
+        }
+
+        var targetRule =
+            FindRuleFromSource(
+                e.OriginalSource as DependencyObject);
+
+        if (targetRule == null ||
+            targetRule.Id == _draggedRule.Id)
+        {
+            _draggedRule = null;
+            return;
+        }
+
+        try
+        {
+            await _databaseService.MoveCustomRuleAsync(
+                _draggedRule.Id,
+                targetRule.Priority);
+
+            await LoadRulesAsync();
+
+            StatusTextBlock.Text =
+                "Rule order autosaved.";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"The rule could not be reordered.\n\n{ex.Message}",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+
+            await LoadRulesAsync();
+        }
+        finally
+        {
+            _draggedRule = null;
+        }
+    }
+
+    private CustomRule? FindRuleFromSource(
+        DependencyObject? source)
+    {
+        while (source != null)
+        {
+            if (source is DataGridRow row &&
+                row.Item is CustomRule rule)
+            {
+                return rule;
+            }
+
+            source =
+                VisualTreeHelper.GetParent(source);
+        }
+
+        return null;
     }
 
     private async void SettingsWindow_Loaded(

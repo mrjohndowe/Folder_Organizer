@@ -55,14 +55,18 @@
 
         <!-- Rules -->
         <DataGrid Grid.Row="2"
-                  x:Name="RulesDataGrid"
-                  AutoGenerateColumns="False"
-                  CanUserAddRows="False"
-                  CanUserDeleteRows="False"
-                  IsReadOnly="False"
-                  CellEditEnding="RulesDataGrid_CellEditEnding"
-                  SelectionMode="Single"
-                  GridLinesVisibility="Horizontal">
+                x:Name="RulesDataGrid"
+                AutoGenerateColumns="False"
+                CanUserAddRows="False"
+                CanUserDeleteRows="False"
+                IsReadOnly="False"
+                CellEditEnding="RulesDataGrid_CellEditEnding"
+                SelectionMode="Single"
+                AllowDrop="True"
+                PreviewMouseLeftButtonDown="RulesDataGrid_PreviewMouseLeftButtonDown"
+                PreviewMouseMove="RulesDataGrid_PreviewMouseMove"
+                Drop="RulesDataGrid_Drop"
+                GridLinesVisibility="Horizontal">
 
             <DataGrid.Columns>
 
