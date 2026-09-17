@@ -9,6 +9,7 @@ namespace FolderOrganizer;
 
 public partial class MainWindow : Window
 {
+    private readonly DatabaseService _databaseService;
     private readonly ObservableCollection<MoveOperation> _operations = [];
 
     private readonly ClassificationService _classificationService;
@@ -20,6 +21,9 @@ public partial class MainWindow : Window
 
         _classificationService = new ClassificationService();
         _scanService = new ScanService(_classificationService);
+        _databaseService = new DatabaseService();
+
+        Loaded += MainWindow_Loaded;
 
         PreviewDataGrid.ItemsSource = _operations;
     }
@@ -37,6 +41,24 @@ public partial class MainWindow : Window
         if (dialog.ShowDialog() == true)
         {
             FolderPathTextBox.Text = dialog.FolderName;
+        }
+    }
+
+    private async void MainWindow_Loaded(
+    object sender,
+    RoutedEventArgs e)
+    {
+        try
+        {
+            await _databaseService.InitializeAsync();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"The history database could not be initialized.\n\n{ex.Message}",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
         }
     }
 
