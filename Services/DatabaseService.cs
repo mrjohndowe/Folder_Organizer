@@ -2,6 +2,7 @@ using System.IO;
 using Microsoft.Data.Sqlite;
 using FolderOrganizer.Models;
 
+
 namespace FolderOrganizer.Services;
 
 public class DatabaseService
@@ -47,6 +48,67 @@ public class DatabaseService
                 DataSource = _databasePath,
                 Mode = SqliteOpenMode.ReadWriteCreate
             }.ToString();
+    }
+
+    public async Task<List<CustomRule>> GetCustomRulesAsync()
+    {
+        var rules = new List<CustomRule>();
+
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+
+        command.CommandText =
+        """
+    SELECT
+        Id,
+        FolderName,
+        Extensions,
+        Priority,
+        IsEnabled,
+        CreatedAt,
+        UpdatedAt
+
+    FROM CustomRules
+
+    ORDER BY Priority ASC, Id ASC;
+    """;
+
+        await using var reader =
+            await command.ExecuteReaderAsync();
+
+        while (await reader.ReadAsync())
+        {
+            rules.Add(new CustomRule
+            {
+                Id = reader.GetInt64(0),
+
+                FolderName =
+                    reader.GetString(1),
+
+                Extensions =
+                    reader.GetString(2),
+
+                Priority =
+                    reader.GetInt32(3),
+
+                IsEnabled =
+                    reader.GetInt32(4) != 0,
+
+                CreatedAt =
+                    DateTime.Parse(
+                        reader.GetString(5)),
+
+                UpdatedAt =
+                    DateTime.Parse(
+                        reader.GetString(6))
+            });
+        }
+
+        return rules;
     }
 
     public async Task<List<OrganizationRun>> GetRunsAsync()
@@ -322,6 +384,21 @@ public class DatabaseService
             FOREIGN KEY (RunId)
                 REFERENCES OrganizationRuns(Id)
         );
+
+        CREATE TABLE IF NOT EXISTS CustomRules
+        (
+            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            FolderName TEXT NOT NULL,
+            Extensions TEXT NOT NULL,
+            Priority INTEGER NOT NULL,
+            IsEnabled INTEGER NOT NULL DEFAULT 1,
+            CreatedAt TEXT NOT NULL,
+            UpdatedAt TEXT NOT NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS
+            IX_CustomRules_Priority
+            ON CustomRules(Priority);
 
         CREATE INDEX IF NOT EXISTS
             IX_MoveHistory_RunId
