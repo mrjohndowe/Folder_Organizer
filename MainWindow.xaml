@@ -153,6 +153,12 @@
                     IsReadOnly="True"
                     Width="2*"/>
 
+				<DataGridTextColumn
+                    Header="Current Location"
+                    Binding="{Binding SourcePath}"
+                    IsReadOnly="True"
+                    Width="3*"/>
+
             </DataGrid.Columns>
 
         </DataGrid>
