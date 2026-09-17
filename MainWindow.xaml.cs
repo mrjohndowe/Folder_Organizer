@@ -49,6 +49,35 @@ public partial class MainWindow : Window
         }
     }
 
+    private async void RemoveIgnoreButton_Click(
+    object sender,
+    RoutedEventArgs e)
+    {
+        var selectedItems =
+            PreviewDataGrid.SelectedItems
+                .OfType<MoveOperation>()
+                .ToList();
+
+        if (selectedItems.Count == 0)
+        {
+            MessageBox.Show(
+                "Select one or more ignored files or folders first.",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+
+            return;
+        }
+
+        foreach (var item in selectedItems)
+        {
+            await _databaseService.RemoveIgnoredPathAsync(
+                item.SourcePath);
+        }
+
+        await RefreshScanAsync();
+    }
+
     private async void IgnoreSelectedButton_Click(
     object sender,
     RoutedEventArgs e)

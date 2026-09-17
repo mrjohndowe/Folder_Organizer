@@ -185,6 +185,12 @@
                     Margin="0,0,8,0"
                     Click="IgnoreSelectedButton_Click"/>
 
+				<Button Content="Remove Ignore"
+                    Width="110"
+                    Height="36"
+                    Margin="0,0,8,0"
+                    Click="RemoveIgnoreButton_Click"/>
+
 				<Button Content="History"
 		             Width="100"
 		             Height="36"
