@@ -49,6 +49,35 @@ public partial class MainWindow : Window
         }
     }
 
+    private async void IgnoreSelectedButton_Click(
+    object sender,
+    RoutedEventArgs e)
+    {
+        var selectedItems =
+            PreviewDataGrid.SelectedItems
+                .OfType<MoveOperation>()
+                .ToList();
+
+        if (selectedItems.Count == 0)
+        {
+            MessageBox.Show(
+                "Select one or more files or folders first.",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+
+            return;
+        }
+
+        foreach (var item in selectedItems)
+        {
+            await _databaseService.AddIgnoredPathAsync(
+                item.SourcePath);
+        }
+
+        await RefreshScanAsync();
+    }
+
     private async void MainWindow_Loaded(
     object sender,
     RoutedEventArgs e)

@@ -179,6 +179,12 @@
             <StackPanel Grid.Column="1"
                         Orientation="Horizontal">
 
+				<Button Content="Ignore Selected"
+                    Width="120"
+                    Height="36"
+                    Margin="0,0,8,0"
+                    Click="IgnoreSelectedButton_Click"/>
+
 				<Button Content="History"
 		             Width="100"
 		             Height="36"
