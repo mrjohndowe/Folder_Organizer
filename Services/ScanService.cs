@@ -98,7 +98,18 @@ public class ScanService
                         _classificationService.Classify(
                             subdirectory,
                             rootFolder);
+                    if (ignoredPaths.Contains(
+                            subdirectory.FullName))
+                    {
+                        operation.Action = "IGNORE";
+                        operation.Selected = false;
+                        operation.Reason =
+                            "User marked this folder Do Not Touch. " +
+                            "Contents were not scanned.";
 
+                        results.Add(operation);
+                        continue;
+                    }
                     if (ProtectedDirectoryNames.Contains(
                             subdirectory.Name))
                     {
@@ -139,10 +150,21 @@ public class ScanService
                 }
                 else if (entry is FileInfo file)
                 {
-                    results.Add(
+                    var operation =
                         _classificationService.Classify(
                             file,
-                            rootFolder));
+                            rootFolder);
+
+                    if (ignoredPaths.Contains(
+                            file.FullName))
+                    {
+                        operation.Action = "IGNORE";
+                        operation.Selected = false;
+                        operation.Reason =
+                            "User marked this file Do Not Touch.";
+                    }
+
+                    results.Add(operation);
                 }
             }
             catch (UnauthorizedAccessException)
