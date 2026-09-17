@@ -91,12 +91,16 @@
 
                 <DataGridTextColumn
                     Header="Folder"
-                    Binding="{Binding FolderName}"
+                    Binding="{Binding FolderName,
+                                      Mode=TwoWay,
+                                      UpdateSourceTrigger=PropertyChanged}"
                     Width="2*"/>
 
-                 <DataGridTextColumn
+                <DataGridTextColumn
                     Header="Extensions"
-                    Binding="{Binding Extensions}"
+                    Binding="{Binding Extensions,
+                                      Mode=TwoWay,
+                                      UpdateSourceTrigger=PropertyChanged}"
                     Width="3*"/>
             </DataGrid.Columns>
 

@@ -32,6 +32,45 @@ public partial class SettingsWindow : Window
         await LoadRulesAsync();
     }
 
+    private void RulesDataGrid_CellEditEnding(
+    object sender,
+    DataGridCellEditEndingEventArgs e)
+    {
+        if (e.Row.Item is not CustomRule rule)
+        {
+            return;
+        }
+
+        if (e.EditingElement is TextBox textBox)
+        {
+            textBox
+                .GetBindingExpression(TextBox.TextProperty)?
+                .UpdateSource();
+        }
+
+        Dispatcher.BeginInvoke(async () =>
+        {
+            try
+            {
+                await _databaseService.UpdateCustomRuleAsync(rule);
+
+                StatusTextBlock.Text =
+                    $"Autosaved: {rule.FolderName}";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"The custom rule could not be saved.\n\n{ex.Message}",
+                    "Folder Organizer",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+
+                StatusTextBlock.Text =
+                    "Autosave failed.";
+            }
+        });
+    }
+
     private async void EnabledCheckBox_Changed(
     object sender,
     RoutedEventArgs e)
@@ -102,37 +141,7 @@ public partial class SettingsWindow : Window
         }
     }
 
-    private void RulesDataGrid_CellEditEnding(
-    object sender,
-    DataGridCellEditEndingEventArgs e)
-    {
-        if (e.Row.Item is not CustomRule rule)
-        {
-            return;
-        }
-
-        Dispatcher.BeginInvoke(async () =>
-        {
-            try
-            {
-                await _databaseService.UpdateCustomRuleAsync(rule);
-
-                StatusTextBlock.Text =
-                    $"Autosaved: {rule.FolderName}";
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    $"The custom rule could not be saved.\n\n{ex.Message}",
-                    "Folder Organizer",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-
-                StatusTextBlock.Text =
-                    "Autosave failed.";
-            }
-        });
-    }
+    
 
     private async Task LoadRulesAsync()
     {
@@ -168,9 +177,17 @@ public partial class SettingsWindow : Window
     }
 
     private void CloseButton_Click(
-        object sender,
-        RoutedEventArgs e)
+     object sender,
+     RoutedEventArgs e)
     {
+        RulesDataGrid.CommitEdit(
+            DataGridEditingUnit.Cell,
+            true);
+
+        RulesDataGrid.CommitEdit(
+            DataGridEditingUnit.Row,
+            true);
+
         Close();
     }
 }
