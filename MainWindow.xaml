@@ -118,46 +118,46 @@
 
             <DataGrid.Columns>
 
-                <DataGridCheckBoxColumn
-                    Header="Use"
-                    Binding="{Binding Selected}"
-                    Width="55"/>
-
-                <DataGridTextColumn
-                    Header="File / Folder"
-                    Binding="{Binding Name}"
-                    IsReadOnly="True"
-                    Width="2*"/>
-
-                <DataGridTextColumn
-                    Header="Type"
-                    Binding="{Binding Type}"
-                    IsReadOnly="True"
-                    Width="100"/>
-
-                <DataGridTextColumn
-                    Header="Action"
-                    Binding="{Binding Action}"
-                    IsReadOnly="True"
-                    Width="100"/>
-
-                <DataGridTextColumn
-                    Header="Destination"
-                    Binding="{Binding DestinationPath}"
-                    IsReadOnly="True"
-                    Width="3*"/>
-
-                <DataGridTextColumn
-                    Header="Reason"
-                    Binding="{Binding Reason}"
-                    IsReadOnly="True"
-                    Width="2*"/>
+				<DataGridCheckBoxColumn
+	                 Header="Use"
+	                 Binding="{Binding Selected}"
+	                 Width="55"/>
 
 				<DataGridTextColumn
-                    Header="Current Location"
-                    Binding="{Binding SourcePath}"
-                    IsReadOnly="True"
-                    Width="3*"/>
+					Header="File / Folder"
+					Binding="{Binding Name}"
+					IsReadOnly="True"
+					Width="180"/>
+
+				<DataGridTextColumn
+					Header="Current Location"
+					Binding="{Binding SourcePath}"
+					IsReadOnly="True"
+					Width="3*"/>
+
+				<DataGridTextColumn
+					Header="Type"
+					Binding="{Binding Type}"
+					IsReadOnly="True"
+					Width="90"/>
+
+				<DataGridTextColumn
+					Header="Action"
+					Binding="{Binding Action}"
+					IsReadOnly="True"
+					Width="90"/>
+
+				<DataGridTextColumn
+					Header="Destination"
+					Binding="{Binding DestinationPath}"
+					IsReadOnly="True"
+					Width="3*"/>
+
+				<DataGridTextColumn
+					Header="Reason"
+					Binding="{Binding Reason}"
+					IsReadOnly="True"
+					Width="2*"/>
 
             </DataGrid.Columns>
 
