@@ -7,7 +7,23 @@ public class ScanService
 {
     private readonly ClassificationService _classificationService;
 
-    public ScanService(ClassificationService classificationService)
+    private static readonly HashSet<string> ProtectedDirectoryNames =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            ".git",
+            ".svn",
+            ".hg",
+            ".vs",
+            ".idea",
+            "bin",
+            "obj",
+            "node_modules",
+            "$Recycle.Bin",
+            "System Volume Information"
+        };
+
+    public ScanService(
+        ClassificationService classificationService)
     {
         _classificationService = classificationService;
     }
@@ -25,66 +41,107 @@ public class ScanService
                 return results;
             }
 
-            var searchOption = includeSubfolders
-                ? SearchOption.AllDirectories
-                : SearchOption.TopDirectoryOnly;
+            var rootDirectory =
+                new DirectoryInfo(rootFolder);
 
-            try
-            {
-                // Folders
-                foreach (var directory in
-                         Directory.EnumerateDirectories(
-                             rootFolder,
-                             "*",
-                             searchOption))
-                {
-                    try
-                    {
-                        var info = new DirectoryInfo(directory);
-
-                        results.Add(
-                            _classificationService.Classify(
-                                info,
-                                rootFolder));
-                    }
-                    catch
-                    {
-                        // An inaccessible folder should not kill the scan.
-                    }
-                }
-
-                // Files
-                foreach (var file in
-                         Directory.EnumerateFiles(
-                             rootFolder,
-                             "*",
-                             searchOption))
-                {
-                    try
-                    {
-                        var info = new FileInfo(file);
-
-                        results.Add(
-                            _classificationService.Classify(
-                                info,
-                                rootFolder));
-                    }
-                    catch
-                    {
-                        // Same philosophy:
-                        // skip one bad file instead of detonating the app.
-                    }
-                }
-            }
-            catch (UnauthorizedAccessException)
-            {
-                // We'll add proper logging/status messages next.
-            }
+            ScanDirectory(
+                rootDirectory,
+                rootFolder,
+                includeSubfolders,
+                results);
 
             return results
                 .OrderBy(x => x.IsDirectory ? 0 : 1)
                 .ThenBy(x => x.Name)
                 .ToList();
         });
+    }
+
+    private void ScanDirectory(
+        DirectoryInfo directory,
+        string rootFolder,
+        bool includeSubfolders,
+        List<MoveOperation> results)
+    {
+        FileSystemInfo[] entries;
+
+        try
+        {
+            entries = directory.GetFileSystemInfos();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return;
+        }
+        catch (IOException)
+        {
+            return;
+        }
+
+        foreach (var entry in entries)
+        {
+            try
+            {
+                if (entry is DirectoryInfo subdirectory)
+                {
+                    var operation =
+                        _classificationService.Classify(
+                            subdirectory,
+                            rootFolder);
+
+                    if (ProtectedDirectoryNames.Contains(
+                            subdirectory.Name))
+                    {
+                        operation.Action = "IGNORE";
+                        operation.Selected = false;
+                        operation.Reason =
+                            "Protected development/system folder. " +
+                            "Contents were not scanned.";
+
+                        results.Add(operation);
+                        continue;
+                    }
+
+                    if ((subdirectory.Attributes &
+                         FileAttributes.ReparsePoint) != 0)
+                    {
+                        operation.Action = "IGNORE";
+                        operation.Selected = false;
+                        operation.Reason =
+                            "Linked/junction folder. " +
+                            "Contents were not scanned.";
+
+                        results.Add(operation);
+                        continue;
+                    }
+
+                    results.Add(operation);
+
+                    if (includeSubfolders)
+                    {
+                        ScanDirectory(
+                            subdirectory,
+                            rootFolder,
+                            true,
+                            results);
+                    }
+                }
+                else if (entry is FileInfo file)
+                {
+                    results.Add(
+                        _classificationService.Classify(
+                            file,
+                            rootFolder));
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Skip inaccessible items.
+            }
+            catch (IOException)
+            {
+                // Skip files/folders that disappear or become locked.
+            }
+        }
     }
 }
