@@ -49,6 +49,19 @@ public partial class MainWindow : Window
         }
     }
 
+    private void SettingsButton_Click(
+    object sender,
+    RoutedEventArgs e)
+    {
+        var settingsWindow =
+            new SettingsWindow(_databaseService)
+            {
+                Owner = this
+            };
+
+        settingsWindow.ShowDialog();
+    }
+
     private async void RemoveIgnoreButton_Click(
     object sender,
     RoutedEventArgs e)

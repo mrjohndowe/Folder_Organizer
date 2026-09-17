@@ -136,8 +136,8 @@ public class DatabaseService
 
         await connection.OpenAsync();
 
-        await using var transaction =
-            await connection.BeginTransactionAsync();
+        using var transaction =
+            connection.BeginTransaction();
 
         try
         {
