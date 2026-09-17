@@ -32,6 +32,40 @@ public partial class SettingsWindow : Window
         await LoadRulesAsync();
     }
 
+    private async void EnabledCheckBox_Changed(
+    object sender,
+    RoutedEventArgs e)
+    {
+        if (sender is not CheckBox checkBox ||
+            checkBox.DataContext is not CustomRule rule)
+        {
+            return;
+        }
+
+        // Explicitly use the checkbox's current value.
+        rule.IsEnabled =
+            checkBox.IsChecked == true;
+
+        try
+        {
+            await _databaseService.UpdateCustomRuleAsync(rule);
+
+            StatusTextBlock.Text =
+                $"Autosaved: {rule.FolderName}";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"The custom rule could not be saved.\n\n{ex.Message}",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+
+            StatusTextBlock.Text =
+                "Autosave failed.";
+        }
+    }
+
     private async void AddRuleButton_Click(
     object sender,
     RoutedEventArgs e)

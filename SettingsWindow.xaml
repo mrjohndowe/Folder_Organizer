@@ -72,12 +72,24 @@
                     IsReadOnly="True"
                     Width="80"/>
 
-                <DataGridCheckBoxColumn
+                <DataGridTemplateColumn
                     Header="Enabled"
-                    Binding="{Binding IsEnabled}"
-                    Width="75"/>
+                    Width="75">
 
-                 <DataGridTextColumn
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <CheckBox
+                            IsChecked="{Binding IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Checked="EnabledCheckBox_Changed"
+                            Unchecked="EnabledCheckBox_Changed"/>
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+
+                </DataGridTemplateColumn>
+
+                <DataGridTextColumn
                     Header="Folder"
                     Binding="{Binding FolderName}"
                     Width="2*"/>
