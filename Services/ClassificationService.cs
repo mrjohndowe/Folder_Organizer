@@ -98,19 +98,19 @@ public class ClassificationService
 
         if (matchingCustomRule != null)
         {
-            var destinationDirectory =
+            var customDestinationDirectory =
                 Path.Combine(
                     rootFolder,
                     matchingCustomRule.FolderName);
 
-            var destination =
+            var customDestination =
                 Path.Combine(
-                    destinationDirectory,
+                    customDestinationDirectory,
                     item.Name);
 
             if (Path.GetDirectoryName(item.FullName)?
                     .Equals(
-                        destinationDirectory,
+                        customDestinationDirectory,
                         StringComparison.OrdinalIgnoreCase) == true)
             {
                 return new MoveOperation
@@ -135,7 +135,7 @@ public class ClassificationService
                 SourcePath = item.FullName,
                 Type = extension.TrimStart('.').ToUpperInvariant(),
                 Action = "MOVE",
-                DestinationPath = destination,
+                DestinationPath = customDestination,
                 Reason =
                     $"Custom rule #{matchingCustomRule.Priority}: " +
                     $"move to {matchingCustomRule.FolderName}.",
