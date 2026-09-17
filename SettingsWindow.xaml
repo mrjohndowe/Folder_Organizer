@@ -66,14 +66,30 @@
 
             <DataGrid.Columns>
 
-                <DataGridTextColumn
+                <DataGridTemplateColumn
                     x:Name="PriorityColumn"
                     Header="Priority"
-                    Binding="{Binding Priority,
-                                      Mode=TwoWay,
-                                      UpdateSourceTrigger=PropertyChanged}"
-                    IsReadOnly="False"
-                    Width="80"/>
+                    Width="80">
+
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock
+                                Text="{Binding Priority}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <TextBox
+                                Text="{Binding Priority, Mode=OneWay}"
+                                HorizontalContentAlignment="Center"
+                                LostFocus="PriorityTextBox_LostFocus"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+
+                </DataGridTemplateColumn>
 
                 <DataGridTemplateColumn
                     Header="Enabled"

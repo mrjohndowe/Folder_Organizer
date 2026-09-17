@@ -1,8 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Controls;
 using FolderOrganizer.Models;
 using FolderOrganizer.Services;
-using System.Windows.Controls;
 
 namespace FolderOrganizer;
 
@@ -10,8 +10,9 @@ public partial class SettingsWindow : Window
 {
     private readonly DatabaseService _databaseService;
 
-    private readonly ObservableCollection<CustomRule>
-        _rules = [];
+    private readonly ObservableCollection<CustomRule> _rules = [];
+
+    private bool _isLoading;
 
     public SettingsWindow(
         DatabaseService databaseService)
@@ -32,115 +33,48 @@ public partial class SettingsWindow : Window
         await LoadRulesAsync();
     }
 
-    private void RulesDataGrid_CellEditEnding(
-    object sender,
-    DataGridCellEditEndingEventArgs e)
+    private async Task LoadRulesAsync()
     {
-        if (e.Row.Item is not CustomRule rule)
-        {
-            return;
-        }
-
-        if (e.EditingElement is TextBox textBox)
-        {
-            textBox
-                .GetBindingExpression(TextBox.TextProperty)?
-                .UpdateSource();
-        }
-
-        // Priority edits are handled separately because
-        // changing priority also reorders other rules.
-        if (e.Column == PriorityColumn)
-        {
-            Dispatcher.BeginInvoke(async () =>
-            {
-                try
-                {
-                    await _databaseService.MoveCustomRuleAsync(
-                        rule.Id,
-                        rule.Priority);
-
-                    await LoadRulesAsync();
-
-                    StatusTextBlock.Text =
-                        "Rule priority updated.";
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(
-                        $"The rule priority could not be changed.\n\n{ex.Message}",
-                        "Folder Organizer",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-
-                    await LoadRulesAsync();
-                }
-            });
-
-            return;
-        }
-
-        // Folder name and Extensions use ordinary autosave.
-        Dispatcher.BeginInvoke(async () =>
-        {
-            try
-            {
-                await _databaseService.UpdateCustomRuleAsync(rule);
-
-                StatusTextBlock.Text =
-                    $"Autosaved: {rule.FolderName}";
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    $"The custom rule could not be saved.\n\n{ex.Message}",
-                    "Folder Organizer",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-
-                StatusTextBlock.Text =
-                    "Autosave failed.";
-            }
-        });
-    }
-
-    private async void EnabledCheckBox_Changed(
-    object sender,
-    RoutedEventArgs e)
-    {
-        if (sender is not CheckBox checkBox ||
-            checkBox.DataContext is not CustomRule rule)
-        {
-            return;
-        }
-
-        // Explicitly use the checkbox's current value.
-        rule.IsEnabled =
-            checkBox.IsChecked == true;
+        _isLoading = true;
 
         try
         {
-            await _databaseService.UpdateCustomRuleAsync(rule);
+            _rules.Clear();
 
             StatusTextBlock.Text =
-                $"Autosaved: {rule.FolderName}";
+                "Loading custom rules...";
+
+            var rules =
+                await _databaseService.GetCustomRulesAsync();
+
+            foreach (var rule in rules)
+            {
+                _rules.Add(rule);
+            }
+
+            StatusTextBlock.Text =
+                $"{_rules.Count:N0} custom rules";
         }
         catch (Exception ex)
         {
             MessageBox.Show(
-                $"The custom rule could not be saved.\n\n{ex.Message}",
+                $"Custom rules could not be loaded.\n\n{ex.Message}",
                 "Folder Organizer",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
 
             StatusTextBlock.Text =
-                "Autosave failed.";
+                "Could not load custom rules.";
+        }
+        finally
+        {
+            _isLoading = false;
         }
     }
 
     private async void AddRuleButton_Click(
-    object sender,
-    RoutedEventArgs e)
+        object sender,
+        RoutedEventArgs e)
     {
         try
         {
@@ -174,44 +108,150 @@ public partial class SettingsWindow : Window
         }
     }
 
-    
-
-    private async Task LoadRulesAsync()
+    private async void EnabledCheckBox_Changed(
+        object sender,
+        RoutedEventArgs e)
     {
-        _rules.Clear();
+        if (_isLoading)
+        {
+            return;
+        }
 
-        StatusTextBlock.Text =
-            "Loading custom rules...";
+        if (sender is not CheckBox checkBox ||
+            checkBox.DataContext is not CustomRule rule)
+        {
+            return;
+        }
+
+        rule.IsEnabled =
+            checkBox.IsChecked == true;
 
         try
         {
-            var rules =
-                await _databaseService.GetCustomRulesAsync();
-
-            foreach (var rule in rules)
-            {
-                _rules.Add(rule);
-            }
+            await _databaseService.UpdateCustomRuleAsync(rule);
 
             StatusTextBlock.Text =
-                $"{_rules.Count:N0} custom rules";
+                $"Autosaved: {rule.FolderName}";
         }
         catch (Exception ex)
         {
             MessageBox.Show(
-                $"Custom rules could not be loaded.\n\n{ex.Message}",
+                $"The custom rule could not be saved.\n\n{ex.Message}",
                 "Folder Organizer",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
 
             StatusTextBlock.Text =
-                "Could not load custom rules.";
+                "Autosave failed.";
+        }
+    }
+
+    private void RulesDataGrid_CellEditEnding(
+    object sender,
+    DataGridCellEditEndingEventArgs e)
+    {
+        if (_isLoading)
+        {
+            return;
+        }
+
+        if (e.Row.Item is not CustomRule rule)
+        {
+            return;
+        }
+
+        // Priority has its own save/reorder handler.
+        // Do NOT let the normal autosave overwrite it.
+        if (e.Column == PriorityColumn)
+        {
+            return;
+        }
+
+        if (e.EditingElement is TextBox textBox)
+        {
+            textBox
+                .GetBindingExpression(TextBox.TextProperty)?
+                .UpdateSource();
+        }
+
+        Dispatcher.BeginInvoke(async () =>
+        {
+            try
+            {
+                await _databaseService.UpdateCustomRuleAsync(rule);
+
+                StatusTextBlock.Text =
+                    $"Autosaved: {rule.FolderName}";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"The custom rule could not be saved.\n\n{ex.Message}",
+                    "Folder Organizer",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+
+                StatusTextBlock.Text =
+                    "Autosave failed.";
+            }
+        });
+    }
+
+    private async void PriorityTextBox_LostFocus(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (_isLoading)
+        {
+            return;
+        }
+
+        if (sender is not TextBox textBox ||
+            textBox.DataContext is not CustomRule rule)
+        {
+            return;
+        }
+
+        if (!int.TryParse(
+                textBox.Text.Trim(),
+                out var requestedPriority))
+        {
+            MessageBox.Show(
+                "Priority must be a whole number.",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+
+            await LoadRulesAsync();
+            return;
+        }
+
+        try
+        {
+            await _databaseService.MoveCustomRuleAsync(
+                rule.Id,
+                requestedPriority);
+
+            await LoadRulesAsync();
+
+            StatusTextBlock.Text =
+                "Rule priority autosaved.";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"The rule priority could not be saved.\n\n{ex.Message}",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+
+            await LoadRulesAsync();
         }
     }
 
     private void CloseButton_Click(
-     object sender,
-     RoutedEventArgs e)
+        object sender,
+        RoutedEventArgs e)
     {
         RulesDataGrid.CommitEdit(
             DataGridEditingUnit.Cell,
