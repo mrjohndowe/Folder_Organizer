@@ -15,6 +15,7 @@ public class ScanService
             ".hg",
             ".vs",
             ".idea",
+            ".vscode",
             "bin",
             "obj",
             "node_modules",
@@ -56,6 +57,7 @@ public class ScanService
                 .ToList();
         });
     }
+
 
     private void ScanDirectory(
         DirectoryInfo directory,
