@@ -128,6 +128,58 @@ public class DatabaseService
         return Convert.ToInt64(result);
     }
 
+    public async Task UpdateCustomRuleAsync(
+    CustomRule rule)
+    {
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var command =
+            connection.CreateCommand();
+
+        command.CommandText =
+        """
+    UPDATE CustomRules
+
+    SET
+        FolderName = $folderName,
+        Extensions = $extensions,
+        Priority = $priority,
+        IsEnabled = $isEnabled,
+        UpdatedAt = $updatedAt
+
+    WHERE Id = $id;
+    """;
+
+        command.Parameters.AddWithValue(
+            "$folderName",
+            rule.FolderName.Trim());
+
+        command.Parameters.AddWithValue(
+            "$extensions",
+            rule.Extensions.Trim());
+
+        command.Parameters.AddWithValue(
+            "$priority",
+            rule.Priority);
+
+        command.Parameters.AddWithValue(
+            "$isEnabled",
+            rule.IsEnabled ? 1 : 0);
+
+        command.Parameters.AddWithValue(
+            "$updatedAt",
+            DateTime.UtcNow.ToString("O"));
+
+        command.Parameters.AddWithValue(
+            "$id",
+            rule.Id);
+
+        await command.ExecuteNonQueryAsync();
+    }
+
     public async Task<List<CustomRule>> GetCustomRulesAsync()
     {
         var rules = new List<CustomRule>();
