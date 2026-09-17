@@ -1,5 +1,6 @@
 using System.IO;
 using Microsoft.Data.Sqlite;
+using FolderOrganizer.Models;
 
 namespace FolderOrganizer.Services;
 
@@ -46,6 +47,153 @@ public class DatabaseService
                 DataSource = _databasePath,
                 Mode = SqliteOpenMode.ReadWriteCreate
             }.ToString();
+    }
+
+    public async Task<List<OrganizationRun>> GetRunsAsync()
+    {
+        var runs = new List<OrganizationRun>();
+
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+
+        command.CommandText =
+        """
+    SELECT
+        Id,
+        RootFolder,
+        StartedAt,
+        CompletedAt,
+        TotalItems,
+        PlannedMoves,
+        SuccessfulMoves,
+        FailedMoves
+
+    FROM OrganizationRuns
+
+    ORDER BY Id DESC;
+    """;
+
+        await using var reader =
+            await command.ExecuteReaderAsync();
+
+        while (await reader.ReadAsync())
+        {
+            runs.Add(new OrganizationRun
+            {
+                Id = reader.GetInt64(0),
+
+                RootFolder =
+                    reader.GetString(1),
+
+                StartedAt =
+                    DateTime.Parse(reader.GetString(2)),
+
+                CompletedAt =
+                    reader.IsDBNull(3)
+                        ? null
+                        : DateTime.Parse(reader.GetString(3)),
+
+                TotalItems =
+                    reader.GetInt32(4),
+
+                PlannedMoves =
+                    reader.GetInt32(5),
+
+                SuccessfulMoves =
+                    reader.GetInt32(6),
+
+                FailedMoves =
+                    reader.GetInt32(7)
+            });
+        }
+
+        return runs;
+    }
+
+    public async Task<List<MoveHistoryEntry>>
+        GetMoveHistoryAsync(long runId)
+    {
+        var entries =
+            new List<MoveHistoryEntry>();
+
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+
+        command.CommandText =
+        """
+    SELECT
+        Id,
+        RunId,
+        SourcePath,
+        DestinationPath,
+        FinalDestinationPath,
+        FileType,
+        Status,
+        ErrorMessage,
+        CreatedAt
+
+    FROM MoveHistory
+
+    WHERE RunId = $runId
+
+    ORDER BY Id;
+    """;
+
+        command.Parameters.AddWithValue(
+            "$runId",
+            runId);
+
+        await using var reader =
+            await command.ExecuteReaderAsync();
+
+        while (await reader.ReadAsync())
+        {
+            entries.Add(new MoveHistoryEntry
+            {
+                Id = reader.GetInt64(0),
+
+                RunId = reader.GetInt64(1),
+
+                SourcePath =
+                    reader.GetString(2),
+
+                DestinationPath =
+                    reader.IsDBNull(3)
+                        ? null
+                        : reader.GetString(3),
+
+                FinalDestinationPath =
+                    reader.IsDBNull(4)
+                        ? null
+                        : reader.GetString(4),
+
+                FileType =
+                    reader.IsDBNull(5)
+                        ? string.Empty
+                        : reader.GetString(5),
+
+                Status =
+                    reader.GetString(6),
+
+                ErrorMessage =
+                    reader.IsDBNull(7)
+                        ? null
+                        : reader.GetString(7),
+
+                CreatedAt =
+                    DateTime.Parse(reader.GetString(8))
+            });
+        }
+
+        return entries;
     }
 
     public async Task InitializeAsync()

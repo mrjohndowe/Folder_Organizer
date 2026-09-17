@@ -179,10 +179,11 @@
             <StackPanel Grid.Column="1"
                         Orientation="Horizontal">
 
-                <Button Content="History"
-                        Width="100"
-                        Height="36"
-                        Margin="0,0,8,0"/>
+				<Button Content="History"
+		             Width="100"
+		             Height="36"
+		             Margin="0,0,8,0"
+		             Click="HistoryButton_Click"/>
 
 				<Button x:Name="ApplyButton"
                     Content="Apply Changes"

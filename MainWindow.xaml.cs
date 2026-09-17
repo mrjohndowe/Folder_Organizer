@@ -122,6 +122,19 @@ public partial class MainWindow : Window
                     StringComparison.OrdinalIgnoreCase));
     }
 
+    private void HistoryButton_Click(
+    object sender,
+    RoutedEventArgs e)
+    {
+        var historyWindow =
+            new HistoryWindow(_databaseService)
+            {
+                Owner = this
+            };
+
+        historyWindow.ShowDialog();
+    }
+
     private async void ApplyButton_Click(
     object sender,
     RoutedEventArgs e)
