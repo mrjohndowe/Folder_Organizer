@@ -48,6 +48,39 @@ public partial class SettingsWindow : Window
                 .UpdateSource();
         }
 
+        // Priority edits are handled separately because
+        // changing priority also reorders other rules.
+        if (e.Column == PriorityColumn)
+        {
+            Dispatcher.BeginInvoke(async () =>
+            {
+                try
+                {
+                    await _databaseService.MoveCustomRuleAsync(
+                        rule.Id,
+                        rule.Priority);
+
+                    await LoadRulesAsync();
+
+                    StatusTextBlock.Text =
+                        "Rule priority updated.";
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        $"The rule priority could not be changed.\n\n{ex.Message}",
+                        "Folder Organizer",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+
+                    await LoadRulesAsync();
+                }
+            });
+
+            return;
+        }
+
+        // Folder name and Extensions use ordinary autosave.
         Dispatcher.BeginInvoke(async () =>
         {
             try

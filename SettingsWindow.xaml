@@ -67,9 +67,12 @@
             <DataGrid.Columns>
 
                 <DataGridTextColumn
+                    x:Name="PriorityColumn"
                     Header="Priority"
-                    Binding="{Binding Priority}"
-                    IsReadOnly="True"
+                    Binding="{Binding Priority,
+                                      Mode=TwoWay,
+                                      UpdateSourceTrigger=PropertyChanged}"
+                    IsReadOnly="False"
                     Width="80"/>
 
                 <DataGridTemplateColumn
