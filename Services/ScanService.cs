@@ -9,8 +9,9 @@ public class ScanService
 
     private static readonly HashSet<string> ProtectedDirectoryNames =
         new(StringComparer.OrdinalIgnoreCase)
-        {
+         {
             ".git",
+            ".github",
             ".svn",
             ".hg",
             ".vs",

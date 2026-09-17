@@ -184,11 +184,12 @@
                         Height="36"
                         Margin="0,0,8,0"/>
 
-                <Button x:Name="ApplyButton"
-                        Content="Apply Changes"
-                        Width="130"
-                        Height="36"
-                        IsEnabled="False"/>
+				<Button x:Name="ApplyButton"
+                    Content="Apply Changes"
+                    Width="130"
+                    Height="36"
+                    IsEnabled="False"
+                    Click="ApplyButton_Click"/>
 
             </StackPanel>
         </Grid>

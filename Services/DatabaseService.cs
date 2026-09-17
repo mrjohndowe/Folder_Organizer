@@ -10,17 +10,34 @@ public class DatabaseService
 
     public DatabaseService()
     {
-        _databasePath = Path.Combine(
-            AppContext.BaseDirectory,
-            "Database",
-            "folder-organizer.db");
+        var applicationDataDirectory =
+            Path.Combine(
+                Environment.GetFolderPath(
+                    Environment.SpecialFolder.LocalApplicationData),
+                "FolderOrganizer");
 
-        var databaseDirectory =
-            Path.GetDirectoryName(_databasePath);
+        Directory.CreateDirectory(applicationDataDirectory);
 
-        if (!string.IsNullOrWhiteSpace(databaseDirectory))
+        _databasePath =
+            Path.Combine(
+                applicationDataDirectory,
+                "folder-organizer.db");
+
+        // If this is the first run, use the bundled database
+        // as the starting database if one exists.
+        var bundledDatabase =
+            Path.Combine(
+                AppContext.BaseDirectory,
+                "Database",
+                "folder-organizer.db");
+
+        if (!File.Exists(_databasePath) &&
+            File.Exists(bundledDatabase))
         {
-            Directory.CreateDirectory(databaseDirectory);
+            File.Copy(
+                bundledDatabase,
+                _databasePath,
+                overwrite: false);
         }
 
         _connectionString =
