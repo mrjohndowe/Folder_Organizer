@@ -128,6 +128,104 @@ public class DatabaseService
         return Convert.ToInt64(result);
     }
 
+    public async Task DeleteCustomRuleAsync(
+    long ruleId)
+    {
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        await using var transaction =
+            await connection.BeginTransactionAsync();
+
+        try
+        {
+            var deleteCommand =
+                connection.CreateCommand();
+
+            deleteCommand.Transaction = transaction;
+
+            deleteCommand.CommandText =
+            """
+        DELETE FROM CustomRules
+        WHERE Id = $id;
+        """;
+
+            deleteCommand.Parameters.AddWithValue(
+                "$id",
+                ruleId);
+
+            await deleteCommand.ExecuteNonQueryAsync();
+
+            var selectCommand =
+                connection.CreateCommand();
+
+            selectCommand.Transaction = transaction;
+
+            selectCommand.CommandText =
+            """
+        SELECT Id
+        FROM CustomRules
+        ORDER BY Priority ASC, Id ASC;
+        """;
+
+            var ids = new List<long>();
+
+            await using (
+                var reader =
+                    await selectCommand.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    ids.Add(reader.GetInt64(0));
+                }
+            }
+
+            for (var index = 0;
+                 index < ids.Count;
+                 index++)
+            {
+                var updateCommand =
+                    connection.CreateCommand();
+
+                updateCommand.Transaction = transaction;
+
+                updateCommand.CommandText =
+                """
+            UPDATE CustomRules
+
+            SET
+                Priority = $priority,
+                UpdatedAt = $updatedAt
+
+            WHERE Id = $id;
+            """;
+
+                updateCommand.Parameters.AddWithValue(
+                    "$priority",
+                    index + 1);
+
+                updateCommand.Parameters.AddWithValue(
+                    "$updatedAt",
+                    DateTime.UtcNow.ToString("O"));
+
+                updateCommand.Parameters.AddWithValue(
+                    "$id",
+                    ids[index]);
+
+                await updateCommand.ExecuteNonQueryAsync();
+            }
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
     public async Task UpdateCustomRuleAsync(
     CustomRule rule)
     {
