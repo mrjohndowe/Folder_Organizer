@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using FolderOrganizer.Models;
 using FolderOrganizer.Services;
+using System.Windows.Controls;
 
 namespace FolderOrganizer;
 
@@ -65,6 +66,38 @@ public partial class SettingsWindow : Window
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }
+    }
+
+    private void RulesDataGrid_CellEditEnding(
+    object sender,
+    DataGridCellEditEndingEventArgs e)
+    {
+        if (e.Row.Item is not CustomRule rule)
+        {
+            return;
+        }
+
+        Dispatcher.BeginInvoke(async () =>
+        {
+            try
+            {
+                await _databaseService.UpdateCustomRuleAsync(rule);
+
+                StatusTextBlock.Text =
+                    $"Autosaved: {rule.FolderName}";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"The custom rule could not be saved.\n\n{ex.Message}",
+                    "Folder Organizer",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+
+                StatusTextBlock.Text =
+                    "Autosave failed.";
+            }
+        });
     }
 
     private async Task LoadRulesAsync()

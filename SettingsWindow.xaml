@@ -59,7 +59,8 @@
                   AutoGenerateColumns="False"
                   CanUserAddRows="False"
                   CanUserDeleteRows="False"
-                  IsReadOnly="True"
+                  IsReadOnly="False"
+                  CellEditEnding="RulesDataGrid_CellEditEnding"
                   SelectionMode="Single"
                   GridLinesVisibility="Horizontal">
 
@@ -68,6 +69,7 @@
                 <DataGridTextColumn
                     Header="Priority"
                     Binding="{Binding Priority}"
+                    IsReadOnly="True"
                     Width="80"/>
 
                 <DataGridCheckBoxColumn
@@ -75,16 +77,15 @@
                     Binding="{Binding IsEnabled}"
                     Width="75"/>
 
-                <DataGridTextColumn
+                 <DataGridTextColumn
                     Header="Folder"
                     Binding="{Binding FolderName}"
                     Width="2*"/>
 
-                <DataGridTextColumn
+                 <DataGridTextColumn
                     Header="Extensions"
                     Binding="{Binding Extensions}"
                     Width="3*"/>
-
             </DataGrid.Columns>
 
         </DataGrid>
