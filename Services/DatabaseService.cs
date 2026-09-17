@@ -225,6 +225,204 @@ public class DatabaseService
         }
     }
 
+    public async Task MoveCustomRuleAsync(
+    long ruleId,
+    int requestedPriority)
+    {
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        using var transaction =
+            connection.BeginTransaction();
+
+        try
+        {
+            // Find the rule's current priority.
+            var currentCommand =
+                connection.CreateCommand();
+
+            currentCommand.Transaction = transaction;
+
+            currentCommand.CommandText =
+            """
+        SELECT Priority
+        FROM CustomRules
+        WHERE Id = $id;
+        """;
+
+            currentCommand.Parameters.AddWithValue(
+                "$id",
+                ruleId);
+
+            var currentResult =
+                await currentCommand.ExecuteScalarAsync();
+
+            if (currentResult == null)
+            {
+                throw new InvalidOperationException(
+                    "The custom rule no longer exists.");
+            }
+
+            var currentPriority =
+                Convert.ToInt32(currentResult);
+
+            // Determine how many rules exist.
+            var countCommand =
+                connection.CreateCommand();
+
+            countCommand.Transaction = transaction;
+
+            countCommand.CommandText =
+            """
+        SELECT COUNT(*)
+        FROM CustomRules;
+        """;
+
+            var count =
+                Convert.ToInt32(
+                    await countCommand.ExecuteScalarAsync());
+
+            // Keep the requested position inside the valid range.
+            var newPriority =
+                Math.Clamp(
+                    requestedPriority,
+                    1,
+                    Math.Max(1, count));
+
+            if (newPriority == currentPriority)
+            {
+                await transaction.CommitAsync();
+                return;
+            }
+
+            var now =
+                DateTime.UtcNow.ToString("O");
+
+            if (newPriority < currentPriority)
+            {
+                // Moving upward.
+                // Push affected rules down one position.
+                var shiftCommand =
+                    connection.CreateCommand();
+
+                shiftCommand.Transaction = transaction;
+
+                shiftCommand.CommandText =
+                """
+            UPDATE CustomRules
+
+            SET
+                Priority = Priority + 1,
+                UpdatedAt = $updatedAt
+
+            WHERE
+                Id <> $id
+                AND Priority >= $newPriority
+                AND Priority < $currentPriority;
+            """;
+
+                shiftCommand.Parameters.AddWithValue(
+                    "$updatedAt",
+                    now);
+
+                shiftCommand.Parameters.AddWithValue(
+                    "$id",
+                    ruleId);
+
+                shiftCommand.Parameters.AddWithValue(
+                    "$newPriority",
+                    newPriority);
+
+                shiftCommand.Parameters.AddWithValue(
+                    "$currentPriority",
+                    currentPriority);
+
+                await shiftCommand.ExecuteNonQueryAsync();
+            }
+            else
+            {
+                // Moving downward.
+                // Pull affected rules up one position.
+                var shiftCommand =
+                    connection.CreateCommand();
+
+                shiftCommand.Transaction = transaction;
+
+                shiftCommand.CommandText =
+                """
+            UPDATE CustomRules
+
+            SET
+                Priority = Priority - 1,
+                UpdatedAt = $updatedAt
+
+            WHERE
+                Id <> $id
+                AND Priority > $currentPriority
+                AND Priority <= $newPriority;
+            """;
+
+                shiftCommand.Parameters.AddWithValue(
+                    "$updatedAt",
+                    now);
+
+                shiftCommand.Parameters.AddWithValue(
+                    "$id",
+                    ruleId);
+
+                shiftCommand.Parameters.AddWithValue(
+                    "$currentPriority",
+                    currentPriority);
+
+                shiftCommand.Parameters.AddWithValue(
+                    "$newPriority",
+                    newPriority);
+
+                await shiftCommand.ExecuteNonQueryAsync();
+            }
+
+            // Put the selected rule into its new position.
+            var moveCommand =
+                connection.CreateCommand();
+
+            moveCommand.Transaction = transaction;
+
+            moveCommand.CommandText =
+            """
+        UPDATE CustomRules
+
+        SET
+            Priority = $priority,
+            UpdatedAt = $updatedAt
+
+        WHERE Id = $id;
+        """;
+
+            moveCommand.Parameters.AddWithValue(
+                "$priority",
+                newPriority);
+
+            moveCommand.Parameters.AddWithValue(
+                "$updatedAt",
+                now);
+
+            moveCommand.Parameters.AddWithValue(
+                "$id",
+                ruleId);
+
+            await moveCommand.ExecuteNonQueryAsync();
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
     public async Task DeleteCustomRuleAsync(
     long ruleId)
     {
