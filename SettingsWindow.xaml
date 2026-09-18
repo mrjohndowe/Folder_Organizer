@@ -140,6 +140,34 @@
 
         </DataGrid>
 
+        <TextBlock Text="Built-in Rules"
+           FontSize="18"
+           FontWeight="SemiBold"
+           Margin="0,16,0,8"/>
+
+        <DataGrid x:Name="BuiltInRulesDataGrid"
+          AutoGenerateColumns="False"
+          CanUserAddRows="False"
+          CanUserDeleteRows="False"
+          IsReadOnly="True"
+          GridLinesVisibility="Horizontal">
+
+            <DataGrid.Columns>
+
+                <DataGridTextColumn
+            Header="Folder"
+            Binding="{Binding Folder}"
+            Width="2*"/>
+
+                <DataGridTextColumn
+            Header="Extensions"
+            Binding="{Binding Extensions}"
+            Width="4*"/>
+
+            </DataGrid.Columns>
+
+        </DataGrid>
+
         <!-- Bottom -->
         <Grid Grid.Row="3"
               Margin="0,12,0,0">

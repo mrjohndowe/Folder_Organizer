@@ -29,8 +29,12 @@ public partial class SettingsWindow : Window
 
         RulesDataGrid.ItemsSource = _rules;
 
+        BuiltInRulesDataGrid.ItemsSource = _builtInRules;
+
         Loaded += SettingsWindow_Loaded;
     }
+
+
 
     private void RulesDataGrid_PreviewMouseLeftButtonDown(
     object sender,
@@ -312,6 +316,8 @@ public partial class SettingsWindow : Window
         }
     }
 
+    
+
     private void RulesDataGrid_CellEditEnding(
     object sender,
     DataGridCellEditEndingEventArgs e)
@@ -417,6 +423,35 @@ public partial class SettingsWindow : Window
         }
     }
 
+    private readonly object[] _builtInRules =
+    [
+        new
+        {
+            Folder = "Documents",
+            Extensions = ".pdf, .doc, .docx, .txt, .rtf, .odt, .xls, .xlsx, .csv, .ppt, .pptx"
+        },
+        new
+        {
+            Folder = "Pictures",
+            Extensions = ".jpg, .jpeg, .png, .gif, .bmp, .webp, .tif, .tiff, .svg"
+        },
+        new
+        {
+            Folder = "Videos",
+            Extensions = ".mp4, .mkv, .avi, .mov, .wmv, .webm, .m4v"
+        },
+        new
+        {
+            Folder = "Music",
+            Extensions = ".mp3, .wav, .flac, .aac, .ogg, .m4a, .wma"
+        },
+        new
+        {
+            Folder = "Archives",
+            Extensions = ".zip, .rar, .7z, .tar, .gz"
+        }
+    ];
+
     private void CloseButton_Click(
         object sender,
         RoutedEventArgs e)
@@ -424,6 +459,8 @@ public partial class SettingsWindow : Window
         RulesDataGrid.CommitEdit(
             DataGridEditingUnit.Cell,
             true);
+
+
 
         RulesDataGrid.CommitEdit(
             DataGridEditingUnit.Row,
