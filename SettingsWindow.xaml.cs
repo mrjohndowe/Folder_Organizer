@@ -34,6 +34,30 @@ public partial class SettingsWindow : Window
         Loaded += SettingsWindow_Loaded;
     }
 
+    private async void DarkModeCheckBox_Changed(
+        object sender,
+    RoutedEventArgs e)
+    {
+        if (_isLoading)
+        {
+            return;
+        }
+
+        var enabled =
+            DarkModeCheckBox.IsChecked == true;
+
+        ThemeService.Apply(enabled);
+
+        await _databaseService.SetSettingAsync(
+            "DarkMode",
+            enabled ? "true" : "false");
+
+        StatusTextBlock.Text =
+            enabled
+                ? "Dark mode enabled."
+                : "Light mode enabled.";
+    }
+
 
 
     private void RulesDataGrid_PreviewMouseLeftButtonDown(
@@ -187,6 +211,17 @@ public partial class SettingsWindow : Window
         {
             _isLoading = false;
         }
+
+        var darkModeSetting =
+        await _databaseService.GetSettingAsync(
+            "DarkMode");
+
+        DarkModeCheckBox.IsChecked =
+            string.Equals(
+                darkModeSetting,
+                "true",
+                StringComparison.OrdinalIgnoreCase);
+
     }
 
     private async void DeleteRuleButton_Click(
@@ -425,32 +460,37 @@ public partial class SettingsWindow : Window
 
     private readonly object[] _builtInRules =
     [
-        new
+       new
         {
+            Icon = "📁",
             Folder = "Documents",
             Extensions = ".pdf, .doc, .docx, .txt, .rtf, .odt, .xls, .xlsx, .csv, .ppt, .pptx"
         },
         new
         {
+            Icon = "🖼️",
             Folder = "Pictures",
             Extensions = ".jpg, .jpeg, .png, .gif, .bmp, .webp, .tif, .tiff, .svg"
         },
         new
         {
+            Icon = "🎬",
             Folder = "Videos",
             Extensions = ".mp4, .mkv, .avi, .mov, .wmv, .webm, .m4v"
         },
         new
         {
+            Icon = "🎵",
             Folder = "Music",
             Extensions = ".mp3, .wav, .flac, .aac, .ogg, .m4a, .wma"
         },
         new
         {
+            Icon = "📦",
             Folder = "Archives",
             Extensions = ".zip, .rar, .7z, .tar, .gz"
         }
-    ];
+            ];
 
     private void CloseButton_Click(
         object sender,

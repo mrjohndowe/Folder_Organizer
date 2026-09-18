@@ -922,6 +922,12 @@ public class DatabaseService
 
         command.CommandText =
         """
+        CREATE TABLE IF NOT EXISTS AppSettings
+        (
+            SettingKey TEXT PRIMARY KEY,
+            SettingValue TEXT NOT NULL
+        );
+
         CREATE TABLE IF NOT EXISTS OrganizationRuns
         (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1029,6 +1035,73 @@ public class DatabaseService
             await command.ExecuteScalarAsync();
 
         return Convert.ToInt64(result);
+    }
+
+    public async Task<string?> GetSettingAsync(
+    string key)
+    {
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+
+        command.CommandText =
+        """
+    SELECT SettingValue
+    FROM AppSettings
+    WHERE SettingKey = $key;
+    """;
+
+        command.Parameters.AddWithValue(
+            "$key",
+            key);
+
+        var result =
+            await command.ExecuteScalarAsync();
+
+        return result?.ToString();
+    }
+
+    public async Task SetSettingAsync(
+        string key,
+        string value)
+    {
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+
+        command.CommandText =
+        """
+    INSERT INTO AppSettings
+    (
+        SettingKey,
+        SettingValue
+    )
+    VALUES
+    (
+        $key,
+        $value
+    )
+
+    ON CONFLICT(SettingKey)
+    DO UPDATE SET
+        SettingValue = excluded.SettingValue;
+    """;
+
+        command.Parameters.AddWithValue(
+            "$key",
+            key);
+
+        command.Parameters.AddWithValue(
+            "$value",
+            value);
+
+        await command.ExecuteNonQueryAsync();
     }
 
     public async Task RecordMoveAsync(

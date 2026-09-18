@@ -127,6 +127,15 @@ public partial class MainWindow : Window
         try
         {
             await _databaseService.InitializeAsync();
+            var darkModeSetting =
+            await _databaseService.GetSettingAsync(
+                "DarkMode");
+
+            ThemeService.Apply(
+                string.Equals(
+                    darkModeSetting,
+                    "true",
+                    StringComparison.OrdinalIgnoreCase));
         }
         catch (Exception ex)
         {
