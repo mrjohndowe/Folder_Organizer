@@ -2,6 +2,7 @@ using System.IO;
 using Microsoft.Data.Sqlite;
 using FolderOrganizer.Models;
 
+
 namespace FolderOrganizer.Services;
 
 public class DatabaseService
@@ -47,6 +48,562 @@ public class DatabaseService
                 DataSource = _databasePath,
                 Mode = SqliteOpenMode.ReadWriteCreate
             }.ToString();
+    }
+
+    public async Task<long> AddCustomRuleAsync(
+    string folderName,
+    string extensions)
+    {
+        extensions =
+             NormalizeExtensions(extensions);
+
+            ValidateCustomRule(
+                folderName,
+                extensions);
+        // existing code continues...
+        {
+            await using var connection =
+            new SqliteConnection(_connectionString);
+
+            await connection.OpenAsync();
+
+            var priorityCommand =
+                connection.CreateCommand();
+
+            priorityCommand.CommandText =
+            """
+    SELECT COALESCE(MAX(Priority), 0) + 1
+    FROM CustomRules;
+    """;
+
+            var nextPriority =
+                Convert.ToInt32(
+                    await priorityCommand.ExecuteScalarAsync());
+
+            var now =
+                DateTime.UtcNow.ToString("O");
+
+            var command =
+                connection.CreateCommand();
+
+            command.CommandText =
+            """
+                INSERT INTO CustomRules
+                (
+                    FolderName,
+                    Extensions,
+                    Priority,
+                    IsEnabled,
+                    CreatedAt,
+                    UpdatedAt
+                )
+                VALUES
+                (
+                    $folderName,
+                    $extensions,
+                    $priority,
+                    1,
+                    $createdAt,
+                    $updatedAt
+                );
+
+                SELECT last_insert_rowid();
+            """;
+
+            command.Parameters.AddWithValue(
+                "$folderName",
+                folderName);
+
+            command.Parameters.AddWithValue(
+                "$extensions",
+                extensions);
+
+            command.Parameters.AddWithValue(
+                "$priority",
+                nextPriority);
+
+            command.Parameters.AddWithValue(
+                "$createdAt",
+                now);
+
+            command.Parameters.AddWithValue(
+                "$updatedAt",
+                now);
+
+            var result =
+                await command.ExecuteScalarAsync();
+
+            return Convert.ToInt64(result);
+        }
+    }
+
+    public async Task SetCustomRulePriorityAsync(
+    long ruleId,
+    int requestedPriority)
+    {
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        using var transaction =
+            connection.BeginTransaction();
+
+        try
+        {
+            var selectCommand =
+                connection.CreateCommand();
+
+            selectCommand.Transaction = transaction;
+
+            selectCommand.CommandText =
+            """
+        SELECT Id
+        FROM CustomRules
+        ORDER BY Priority ASC, Id ASC;
+        """;
+
+            var ids = new List<long>();
+
+            await using (
+                var reader =
+                    await selectCommand.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    ids.Add(reader.GetInt64(0));
+                }
+            }
+
+            if (!ids.Remove(ruleId))
+            {
+                return;
+            }
+
+            var newPriority =
+                Math.Clamp(
+                    requestedPriority,
+                    1,
+                    ids.Count + 1);
+
+            ids.Insert(
+                newPriority - 1,
+                ruleId);
+
+            for (var index = 0;
+                 index < ids.Count;
+                 index++)
+            {
+                var updateCommand =
+                    connection.CreateCommand();
+
+                updateCommand.Transaction = transaction;
+
+                updateCommand.CommandText =
+                """
+            UPDATE CustomRules
+
+            SET
+                Priority = $priority,
+                UpdatedAt = $updatedAt
+
+            WHERE Id = $id;
+            """;
+
+                updateCommand.Parameters.AddWithValue(
+                    "$priority",
+                    index + 1);
+
+                updateCommand.Parameters.AddWithValue(
+                    "$updatedAt",
+                    DateTime.UtcNow.ToString("O"));
+
+                updateCommand.Parameters.AddWithValue(
+                    "$id",
+                    ids[index]);
+
+                await updateCommand.ExecuteNonQueryAsync();
+            }
+
+            transaction.Commit();
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
+    }
+
+   
+
+    public async Task MoveCustomRuleAsync(
+    long ruleId,
+    int requestedPriority)
+    {
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        using var transaction =
+            connection.BeginTransaction();
+
+        try
+        {
+            // Load every rule in the current display order.
+            var selectCommand =
+                connection.CreateCommand();
+
+            selectCommand.Transaction = transaction;
+
+            selectCommand.CommandText =
+            """
+        SELECT Id
+        FROM CustomRules
+        ORDER BY Priority ASC, Id ASC;
+        """;
+
+            var ruleIds = new List<long>();
+
+            await using (
+                var reader =
+                    await selectCommand.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    ruleIds.Add(reader.GetInt64(0));
+                }
+            }
+
+            if (!ruleIds.Contains(ruleId))
+            {
+                throw new InvalidOperationException(
+                    "The custom rule no longer exists.");
+            }
+
+            // Remove the selected rule from its old position.
+            ruleIds.Remove(ruleId);
+
+            // Clamp the requested priority to a valid position.
+            var newPriority =
+                Math.Clamp(
+                    requestedPriority,
+                    1,
+                    ruleIds.Count + 1);
+
+            // Priority 1 = list index 0.
+            ruleIds.Insert(
+                newPriority - 1,
+                ruleId);
+
+            var now =
+                DateTime.UtcNow.ToString("O");
+
+            // Rewrite ALL priorities sequentially.
+            for (var index = 0;
+                 index < ruleIds.Count;
+                 index++)
+            {
+                var updateCommand =
+                    connection.CreateCommand();
+
+                updateCommand.Transaction = transaction;
+
+                updateCommand.CommandText =
+                """
+            UPDATE CustomRules
+
+            SET
+                Priority = $priority,
+                UpdatedAt = $updatedAt
+
+            WHERE Id = $id;
+            """;
+
+                updateCommand.Parameters.AddWithValue(
+                    "$priority",
+                    index + 1);
+
+                updateCommand.Parameters.AddWithValue(
+                    "$updatedAt",
+                    now);
+
+                updateCommand.Parameters.AddWithValue(
+                    "$id",
+                    ruleIds[index]);
+
+                await updateCommand.ExecuteNonQueryAsync();
+            }
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    private static string NormalizeExtensions(
+    string extensions)
+    {
+        if (string.IsNullOrWhiteSpace(extensions))
+        {
+            return string.Empty;
+        }
+
+        var values =
+            extensions.Split(
+                [',', ';', ' '],
+                StringSplitOptions.RemoveEmptyEntries |
+                StringSplitOptions.TrimEntries);
+
+        var normalized =
+            values
+                .Select(value =>
+                {
+                    var extension =
+                        value.Trim().ToLowerInvariant();
+
+                    if (!extension.StartsWith('.'))
+                    {
+                        extension = "." + extension;
+                    }
+
+                    return extension;
+                })
+                .Distinct(
+                    StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+        return string.Join(
+            ", ",
+            normalized);
+    }
+
+    public async Task DeleteCustomRuleAsync(
+    long ruleId)
+    {
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        using var transaction =
+            connection.BeginTransaction();
+
+        try
+        {
+            var deleteCommand =
+                connection.CreateCommand();
+
+            deleteCommand.Transaction = transaction;
+
+            deleteCommand.CommandText =
+            """
+        DELETE FROM CustomRules
+        WHERE Id = $id;
+        """;
+
+            deleteCommand.Parameters.AddWithValue(
+                "$id",
+                ruleId);
+
+            await deleteCommand.ExecuteNonQueryAsync();
+
+            var selectCommand =
+                connection.CreateCommand();
+
+            selectCommand.Transaction = transaction;
+
+            selectCommand.CommandText =
+            """
+        SELECT Id
+        FROM CustomRules
+        ORDER BY Priority ASC, Id ASC;
+        """;
+
+            var ids = new List<long>();
+
+            await using (
+                var reader =
+                    await selectCommand.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    ids.Add(reader.GetInt64(0));
+                }
+            }
+
+            for (var index = 0;
+                 index < ids.Count;
+                 index++)
+            {
+                var updateCommand =
+                    connection.CreateCommand();
+
+                updateCommand.Transaction = transaction;
+
+                updateCommand.CommandText =
+                """
+            UPDATE CustomRules
+
+            SET
+                Priority = $priority,
+                UpdatedAt = $updatedAt
+
+            WHERE Id = $id;
+            """;
+
+                updateCommand.Parameters.AddWithValue(
+                    "$priority",
+                    index + 1);
+
+                updateCommand.Parameters.AddWithValue(
+                    "$updatedAt",
+                    DateTime.UtcNow.ToString("O"));
+
+                updateCommand.Parameters.AddWithValue(
+                    "$id",
+                    ids[index]);
+
+                await updateCommand.ExecuteNonQueryAsync();
+            }
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task UpdateCustomRuleAsync(
+    CustomRule rule)
+    {
+        rule.FolderName =
+        rule.FolderName.Trim();
+
+            rule.Extensions =
+                NormalizeExtensions(
+                    rule.Extensions);
+
+            ValidateCustomRule(
+                rule.FolderName,
+                rule.Extensions);
+
+        // existing code continues...
+        {
+            await using var connection =
+            new SqliteConnection(_connectionString);
+
+            await connection.OpenAsync();
+
+            var command =
+                connection.CreateCommand();
+
+            command.CommandText =
+            """
+    UPDATE CustomRules
+
+    SET
+        FolderName = $folderName,
+        Extensions = $extensions,
+        Priority = $priority,
+        IsEnabled = $isEnabled,
+        UpdatedAt = $updatedAt
+
+    WHERE Id = $id;
+    """;
+
+            command.Parameters.AddWithValue(
+                "$folderName",
+                rule.FolderName.Trim());
+
+            command.Parameters.AddWithValue(
+                "$extensions",
+                rule.Extensions.Trim());
+
+            command.Parameters.AddWithValue(
+                "$priority",
+                rule.Priority);
+
+            command.Parameters.AddWithValue(
+                "$isEnabled",
+                rule.IsEnabled ? 1 : 0);
+
+            command.Parameters.AddWithValue(
+                "$updatedAt",
+                DateTime.UtcNow.ToString("O"));
+
+            command.Parameters.AddWithValue(
+                "$id",
+                rule.Id);
+
+            await command.ExecuteNonQueryAsync();
+        }
+    }
+
+    public async Task<List<CustomRule>> GetCustomRulesAsync()
+    {
+        var rules = new List<CustomRule>();
+
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+
+        command.CommandText =
+        """
+    SELECT
+        Id,
+        FolderName,
+        Extensions,
+        Priority,
+        IsEnabled,
+        CreatedAt,
+        UpdatedAt
+
+    FROM CustomRules
+
+    ORDER BY Priority ASC, Id ASC;
+    """;
+
+        await using var reader =
+            await command.ExecuteReaderAsync();
+
+        while (await reader.ReadAsync())
+        {
+            rules.Add(new CustomRule
+            {
+                Id = reader.GetInt64(0),
+
+                FolderName =
+                    reader.GetString(1),
+
+                Extensions =
+                    reader.GetString(2),
+
+                Priority =
+                    reader.GetInt32(3),
+
+                IsEnabled =
+                    reader.GetInt32(4) != 0,
+
+                CreatedAt =
+                    DateTime.Parse(
+                        reader.GetString(5)),
+
+                UpdatedAt =
+                    DateTime.Parse(
+                        reader.GetString(6))
+            });
+        }
+
+        return rules;
     }
 
     public async Task<List<OrganizationRun>> GetRunsAsync()
@@ -284,6 +841,76 @@ public class DatabaseService
         await command.ExecuteNonQueryAsync();
     }
 
+    private static void ValidateCustomRule(
+    string folderName,
+    string extensions)
+    {
+        if (string.IsNullOrWhiteSpace(folderName))
+        {
+            throw new InvalidOperationException(
+                "Folder name cannot be blank.");
+        }
+
+        var trimmedFolderName =
+            folderName.Trim();
+
+        if (trimmedFolderName is "." or "..")
+        {
+            throw new InvalidOperationException(
+                "Folder name cannot be . or ..");
+        }
+
+        if (trimmedFolderName.IndexOfAny(
+                Path.GetInvalidFileNameChars()) >= 0)
+        {
+            throw new InvalidOperationException(
+                "Folder name contains invalid Windows characters.");
+        }
+
+        if (trimmedFolderName.Contains(
+                Path.DirectorySeparatorChar) ||
+            trimmedFolderName.Contains(
+                Path.AltDirectorySeparatorChar))
+        {
+            throw new InvalidOperationException(
+                "Folder name must be a single folder name, not a path.");
+        }
+
+        if (string.IsNullOrWhiteSpace(extensions))
+        {
+            return;
+        }
+
+        var values =
+            extensions.Split(
+                [',', ';', ' '],
+                StringSplitOptions.RemoveEmptyEntries |
+                StringSplitOptions.TrimEntries);
+
+        foreach (var value in values)
+        {
+            var extension =
+                value.StartsWith('.')
+                    ? value
+                    : "." + value;
+
+            if (extension.Length < 2)
+            {
+                throw new InvalidOperationException(
+                    "Each extension must contain a file type.");
+            }
+
+            if (extension.Contains('*') ||
+                extension.Contains('?') ||
+                extension.Contains('\\') ||
+                extension.Contains('/'))
+            {
+                throw new InvalidOperationException(
+                    $"Invalid extension: {value}");
+            }
+        }
+    }
+
     public async Task InitializeAsync()
     {
         await using var connection =
@@ -322,6 +949,21 @@ public class DatabaseService
             FOREIGN KEY (RunId)
                 REFERENCES OrganizationRuns(Id)
         );
+
+        CREATE TABLE IF NOT EXISTS CustomRules
+        (
+            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            FolderName TEXT NOT NULL,
+            Extensions TEXT NOT NULL,
+            Priority INTEGER NOT NULL,
+            IsEnabled INTEGER NOT NULL DEFAULT 1,
+            CreatedAt TEXT NOT NULL,
+            UpdatedAt TEXT NOT NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS
+            IX_CustomRules_Priority
+            ON CustomRules(Priority);
 
         CREATE INDEX IF NOT EXISTS
             IX_MoveHistory_RunId

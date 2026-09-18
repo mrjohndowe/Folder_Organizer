@@ -37,9 +37,13 @@
                            Opacity="0.65"/>
             </StackPanel>
 
-            <Button Grid.Column="1"
-                    Content="⚙ Settings"
-                    Padding="14,8"/>
+			<Button Grid.Column="1"
+                Content="⚙ Settings"
+                Padding="14,8"
+                Click="SettingsButton_Click"/>
+
+			
+			
         </Grid>
 
         <!-- Folder selection -->

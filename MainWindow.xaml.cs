@@ -49,6 +49,19 @@ public partial class MainWindow : Window
         }
     }
 
+    private void SettingsButton_Click(
+    object sender,
+    RoutedEventArgs e)
+    {
+        var settingsWindow =
+            new SettingsWindow(_databaseService)
+            {
+                Owner = this
+            };
+
+        settingsWindow.ShowDialog();
+    }
+
     private async void RemoveIgnoreButton_Click(
     object sender,
     RoutedEventArgs e)
@@ -141,11 +154,15 @@ public partial class MainWindow : Window
         var ignoredPaths =
             await _databaseService.GetIgnoredPathsAsync();
 
-                var results =
-                    await _scanService.ScanAsync(
-                        folder,
-                        IncludeSubfoldersCheckBox.IsChecked == true,
-                        ignoredPaths);
+        var customRules =
+            await _databaseService.GetCustomRulesAsync();
+
+        var results =
+            await _scanService.ScanAsync(
+                folder,
+                IncludeSubfoldersCheckBox.IsChecked == true,
+                ignoredPaths,
+                customRules);
 
         foreach (var result in results)
         {
