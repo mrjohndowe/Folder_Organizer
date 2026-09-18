@@ -185,6 +185,57 @@ public partial class SettingsWindow : Window
         }
     }
 
+    private async void DeleteRuleButton_Click(
+    object sender,
+    RoutedEventArgs e)
+    {
+        if (RulesDataGrid.SelectedItem
+            is not CustomRule rule)
+        {
+            MessageBox.Show(
+                "Select a custom rule first.",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+
+            return;
+        }
+
+        var confirmation =
+            MessageBox.Show(
+                $"Delete the custom rule \"{rule.FolderName}\"?\n\n" +
+                "This removes the rule only. " +
+                "It will not delete or move any files.",
+                "Delete Custom Rule",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning,
+                MessageBoxResult.No);
+
+        if (confirmation != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        try
+        {
+            await _databaseService.DeleteCustomRuleAsync(
+                rule.Id);
+
+            await LoadRulesAsync();
+
+            StatusTextBlock.Text =
+                $"Deleted custom rule: {rule.FolderName}";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"The custom rule could not be deleted.\n\n{ex.Message}",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+    }
+
     private async void AddRuleButton_Click(
         object sender,
         RoutedEventArgs e)

@@ -41,6 +41,9 @@
                 Content="⚙ Settings"
                 Padding="14,8"
                 Click="SettingsButton_Click"/>
+
+			
+			
         </Grid>
 
         <!-- Folder selection -->

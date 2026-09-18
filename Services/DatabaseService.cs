@@ -54,32 +54,38 @@ public class DatabaseService
     string folderName,
     string extensions)
     {
-        await using var connection =
+        ValidateCustomRule(
+            folderName,
+            extensions);
+
+        // existing code continues...
+        {
+            await using var connection =
             new SqliteConnection(_connectionString);
 
-        await connection.OpenAsync();
+            await connection.OpenAsync();
 
-        var priorityCommand =
-            connection.CreateCommand();
+            var priorityCommand =
+                connection.CreateCommand();
 
-        priorityCommand.CommandText =
-        """
+            priorityCommand.CommandText =
+            """
     SELECT COALESCE(MAX(Priority), 0) + 1
     FROM CustomRules;
     """;
 
-        var nextPriority =
-            Convert.ToInt32(
-                await priorityCommand.ExecuteScalarAsync());
+            var nextPriority =
+                Convert.ToInt32(
+                    await priorityCommand.ExecuteScalarAsync());
 
-        var now =
-            DateTime.UtcNow.ToString("O");
+            var now =
+                DateTime.UtcNow.ToString("O");
 
-        var command =
-            connection.CreateCommand();
+            var command =
+                connection.CreateCommand();
 
-        command.CommandText =
-        """
+            command.CommandText =
+            """
     INSERT INTO CustomRules
     (
         FolderName,
@@ -102,30 +108,31 @@ public class DatabaseService
     SELECT last_insert_rowid();
     """;
 
-        command.Parameters.AddWithValue(
-            "$folderName",
-            folderName);
+            command.Parameters.AddWithValue(
+                "$folderName",
+                folderName);
 
-        command.Parameters.AddWithValue(
-            "$extensions",
-            extensions);
+            command.Parameters.AddWithValue(
+                "$extensions",
+                extensions);
 
-        command.Parameters.AddWithValue(
-            "$priority",
-            nextPriority);
+            command.Parameters.AddWithValue(
+                "$priority",
+                nextPriority);
 
-        command.Parameters.AddWithValue(
-            "$createdAt",
-            now);
+            command.Parameters.AddWithValue(
+                "$createdAt",
+                now);
 
-        command.Parameters.AddWithValue(
-            "$updatedAt",
-            now);
+            command.Parameters.AddWithValue(
+                "$updatedAt",
+                now);
 
-        var result =
-            await command.ExecuteScalarAsync();
+            var result =
+                await command.ExecuteScalarAsync();
 
-        return Convert.ToInt64(result);
+            return Convert.ToInt64(result);
+        }
     }
 
     public async Task SetCustomRulePriorityAsync(
@@ -222,6 +229,83 @@ public class DatabaseService
         {
             transaction.Rollback();
             throw;
+        }
+    }
+
+    private static void ValidateCustomRule(
+    string folderName,
+    string extensions)
+    {
+        if (string.IsNullOrWhiteSpace(folderName))
+        {
+            throw new InvalidOperationException(
+                "Folder name cannot be blank.");
+        }
+
+        var trimmedFolderName =
+            folderName.Trim();
+
+        if (trimmedFolderName is "." or "..")
+        {
+            throw new InvalidOperationException(
+                "Folder name cannot be . or ..");
+        }
+
+        if (trimmedFolderName.IndexOfAny(
+                Path.GetInvalidFileNameChars()) >= 0)
+        {
+            throw new InvalidOperationException(
+                "Folder name contains invalid Windows characters.");
+        }
+
+        if (trimmedFolderName.Contains(
+                Path.DirectorySeparatorChar) ||
+            trimmedFolderName.Contains(
+                Path.AltDirectorySeparatorChar))
+        {
+            throw new InvalidOperationException(
+                "Folder name must be a single folder name, not a path.");
+        }
+
+        if (string.IsNullOrWhiteSpace(extensions))
+        {
+            return;
+        }
+
+        var values =
+            extensions.Split(
+                [',', ';', ' '],
+                StringSplitOptions.RemoveEmptyEntries |
+                StringSplitOptions.TrimEntries);
+
+        foreach (var value in values)
+        {
+            var extension =
+                value.StartsWith('.')
+                    ? value
+                    : "." + value;
+
+            if (extension.Length < 2)
+            {
+                throw new InvalidOperationException(
+                    "Each extension must contain a file type.");
+            }
+
+            if (extension.IndexOfAny(
+                    Path.GetInvalidFileNameChars()) >= 0)
+            {
+                throw new InvalidOperationException(
+                    $"Invalid extension: {value}");
+            }
+
+            if (extension.Contains('*') ||
+                extension.Contains('?') ||
+                extension.Contains('\\') ||
+                extension.Contains('/'))
+            {
+                throw new InvalidOperationException(
+                    $"Invalid extension: {value}");
+            }
         }
     }
 
@@ -433,16 +517,22 @@ public class DatabaseService
     public async Task UpdateCustomRuleAsync(
     CustomRule rule)
     {
-        await using var connection =
+        ValidateCustomRule(
+            rule.FolderName,
+            rule.Extensions);
+
+        // existing code continues...
+        {
+            await using var connection =
             new SqliteConnection(_connectionString);
 
-        await connection.OpenAsync();
+            await connection.OpenAsync();
 
-        var command =
-            connection.CreateCommand();
+            var command =
+                connection.CreateCommand();
 
-        command.CommandText =
-        """
+            command.CommandText =
+            """
     UPDATE CustomRules
 
     SET
@@ -455,31 +545,32 @@ public class DatabaseService
     WHERE Id = $id;
     """;
 
-        command.Parameters.AddWithValue(
-            "$folderName",
-            rule.FolderName.Trim());
+            command.Parameters.AddWithValue(
+                "$folderName",
+                rule.FolderName.Trim());
 
-        command.Parameters.AddWithValue(
-            "$extensions",
-            rule.Extensions.Trim());
+            command.Parameters.AddWithValue(
+                "$extensions",
+                rule.Extensions.Trim());
 
-        command.Parameters.AddWithValue(
-            "$priority",
-            rule.Priority);
+            command.Parameters.AddWithValue(
+                "$priority",
+                rule.Priority);
 
-        command.Parameters.AddWithValue(
-            "$isEnabled",
-            rule.IsEnabled ? 1 : 0);
+            command.Parameters.AddWithValue(
+                "$isEnabled",
+                rule.IsEnabled ? 1 : 0);
 
-        command.Parameters.AddWithValue(
-            "$updatedAt",
-            DateTime.UtcNow.ToString("O"));
+            command.Parameters.AddWithValue(
+                "$updatedAt",
+                DateTime.UtcNow.ToString("O"));
 
-        command.Parameters.AddWithValue(
-            "$id",
-            rule.Id);
+            command.Parameters.AddWithValue(
+                "$id",
+                rule.Id);
 
-        await command.ExecuteNonQueryAsync();
+            await command.ExecuteNonQueryAsync();
+        }
     }
 
     public async Task<List<CustomRule>> GetCustomRulesAsync()
