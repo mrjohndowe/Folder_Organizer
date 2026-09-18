@@ -307,6 +307,8 @@ public partial class SettingsWindow : Window
 
             StatusTextBlock.Text =
                 "Autosave failed.";
+
+            await LoadRulesAsync();
         }
     }
 
@@ -357,6 +359,8 @@ public partial class SettingsWindow : Window
 
                 StatusTextBlock.Text =
                     "Autosave failed.";
+
+                await LoadRulesAsync();
             }
         });
     }
