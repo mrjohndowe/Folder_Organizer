@@ -81,6 +81,24 @@
 
             <DataGrid.Columns>
 
+				<DataGridTemplateColumn
+                    Header=""
+                    Width="36"
+                    IsReadOnly="True">
+
+				<DataGridTemplateColumn.CellTemplate>
+					<DataTemplate>
+						<TextBlock
+							Text="☰"
+							FontSize="16"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							ToolTip="Drag to reorder"/>
+					</DataTemplate>
+				</DataGridTemplateColumn.CellTemplate>
+
+			</DataGridTemplateColumn>
+
                 <DataGridTemplateColumn
                     x:Name="PriorityColumn"
                     Header="Priority"
