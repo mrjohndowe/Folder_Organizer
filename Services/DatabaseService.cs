@@ -54,10 +54,12 @@ public class DatabaseService
     string folderName,
     string extensions)
     {
-        ValidateCustomRule(
-            folderName,
-            extensions);
+        extensions =
+             NormalizeExtensions(extensions);
 
+            ValidateCustomRule(
+                folderName,
+                extensions);
         // existing code continues...
         {
             await using var connection =
@@ -86,27 +88,27 @@ public class DatabaseService
 
             command.CommandText =
             """
-    INSERT INTO CustomRules
-    (
-        FolderName,
-        Extensions,
-        Priority,
-        IsEnabled,
-        CreatedAt,
-        UpdatedAt
-    )
-    VALUES
-    (
-        $folderName,
-        $extensions,
-        $priority,
-        1,
-        $createdAt,
-        $updatedAt
-    );
+                INSERT INTO CustomRules
+                (
+                    FolderName,
+                    Extensions,
+                    Priority,
+                    IsEnabled,
+                    CreatedAt,
+                    UpdatedAt
+                )
+                VALUES
+                (
+                    $folderName,
+                    $extensions,
+                    $priority,
+                    1,
+                    $createdAt,
+                    $updatedAt
+                );
 
-    SELECT last_insert_rowid();
-    """;
+                SELECT last_insert_rowid();
+            """;
 
             command.Parameters.AddWithValue(
                 "$folderName",
@@ -341,6 +343,44 @@ public class DatabaseService
             throw;
         }
     }
+
+    private static string NormalizeExtensions(
+    string extensions)
+    {
+        if (string.IsNullOrWhiteSpace(extensions))
+        {
+            return string.Empty;
+        }
+
+        var values =
+            extensions.Split(
+                [',', ';', ' '],
+                StringSplitOptions.RemoveEmptyEntries |
+                StringSplitOptions.TrimEntries);
+
+        var normalized =
+            values
+                .Select(value =>
+                {
+                    var extension =
+                        value.Trim().ToLowerInvariant();
+
+                    if (!extension.StartsWith('.'))
+                    {
+                        extension = "." + extension;
+                    }
+
+                    return extension;
+                })
+                .Distinct(
+                    StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+        return string.Join(
+            ", ",
+            normalized);
+    }
+
     public async Task DeleteCustomRuleAsync(
     long ruleId)
     {
@@ -442,9 +482,16 @@ public class DatabaseService
     public async Task UpdateCustomRuleAsync(
     CustomRule rule)
     {
-        ValidateCustomRule(
-            rule.FolderName,
-            rule.Extensions);
+        rule.FolderName =
+        rule.FolderName.Trim();
+
+            rule.Extensions =
+                NormalizeExtensions(
+                    rule.Extensions);
+
+            ValidateCustomRule(
+                rule.FolderName,
+                rule.Extensions);
 
         // existing code continues...
         {
