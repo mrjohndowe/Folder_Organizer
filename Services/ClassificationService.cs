@@ -66,7 +66,8 @@ public class ClassificationService
 
     public MoveOperation Classify(
         FileSystemInfo item,
-        string rootFolder)
+        string rootFolder,
+        IReadOnlyList<CustomRule>? customRules = null)
     {
         if (item is DirectoryInfo)
         {
@@ -84,6 +85,63 @@ public class ClassificationService
         }
 
         var extension = Path.GetExtension(item.Name).ToLowerInvariant();
+        customRules ??= [];
+
+        var matchingCustomRule =
+            customRules
+                .Where(x => x.IsEnabled)
+                .OrderBy(x => x.Priority)
+                .FirstOrDefault(x =>
+                    RuleMatchesExtension(
+                        x.Extensions,
+                        extension));
+
+        if (matchingCustomRule != null)
+        {
+            var customDestinationDirectory =
+                Path.Combine(
+                    rootFolder,
+                    matchingCustomRule.FolderName);
+
+            var customDestination =
+                Path.Combine(
+                    customDestinationDirectory,
+                    item.Name);
+
+            if (Path.GetDirectoryName(item.FullName)?
+                    .Equals(
+                        customDestinationDirectory,
+                        StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return new MoveOperation
+                {
+                    Selected = false,
+                    Name = item.Name,
+                    SourcePath = item.FullName,
+                    Type = extension.TrimStart('.').ToUpperInvariant(),
+                    Action = "IGNORE",
+                    DestinationPath = item.FullName,
+                    Reason =
+                        $"File is already in custom folder " +
+                        $"{matchingCustomRule.FolderName}.",
+                    IsDirectory = false
+                };
+            }
+
+            return new MoveOperation
+            {
+                Selected = true,
+                Name = item.Name,
+                SourcePath = item.FullName,
+                Type = extension.TrimStart('.').ToUpperInvariant(),
+                Action = "MOVE",
+                DestinationPath = customDestination,
+                Reason =
+                    $"Custom rule #{matchingCustomRule.Priority}: " +
+                    $"move to {matchingCustomRule.FolderName}.",
+                IsDirectory = false
+            };
+        }
 
         string? destinationFolder = null;
         string type;
@@ -170,4 +228,39 @@ public class ClassificationService
             IsDirectory = false
         };
     }
+
+    private static bool RuleMatchesExtension(
+    string extensions,
+    string fileExtension)
+    {
+        if (string.IsNullOrWhiteSpace(extensions) ||
+            string.IsNullOrWhiteSpace(fileExtension))
+        {
+            return false;
+        }
+
+        var ruleExtensions =
+            extensions.Split(
+                [',', ';', ' '],
+                StringSplitOptions.RemoveEmptyEntries |
+                StringSplitOptions.TrimEntries);
+
+        foreach (var ruleExtension in ruleExtensions)
+        {
+            var normalized =
+                ruleExtension.StartsWith('.')
+                    ? ruleExtension.ToLowerInvariant()
+                    : "." + ruleExtension.ToLowerInvariant();
+
+            if (normalized.Equals(
+                    fileExtension,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

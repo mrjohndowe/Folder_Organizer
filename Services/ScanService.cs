@@ -9,7 +9,7 @@ public class ScanService
 
     private static readonly HashSet<string> ProtectedDirectoryNames =
         new(StringComparer.OrdinalIgnoreCase)
-         {
+        {
             ".git",
             ".github",
             ".svn",
@@ -33,7 +33,8 @@ public class ScanService
     public Task<List<MoveOperation>> ScanAsync(
         string rootFolder,
         bool includeSubfolders,
-        HashSet<string>? ignoredPaths = null)
+        HashSet<string>? ignoredPaths = null,
+        IReadOnlyList<CustomRule>? customRules = null)
     {
         return Task.Run(() =>
         {
@@ -41,7 +42,10 @@ public class ScanService
                 new HashSet<string>(
                     StringComparer.OrdinalIgnoreCase);
 
-            var results = new List<MoveOperation>();
+            customRules ??= [];
+
+            var results =
+                new List<MoveOperation>();
 
             if (!Directory.Exists(rootFolder))
             {
@@ -56,7 +60,8 @@ public class ScanService
                 rootFolder,
                 includeSubfolders,
                 results,
-                ignoredPaths);
+                ignoredPaths,
+                customRules);
 
             return results
                 .OrderBy(x => x.IsDirectory ? 0 : 1)
@@ -65,19 +70,20 @@ public class ScanService
         });
     }
 
-
     private void ScanDirectory(
         DirectoryInfo directory,
         string rootFolder,
         bool includeSubfolders,
         List<MoveOperation> results,
-        HashSet<string> ignoredPaths)
+        HashSet<string> ignoredPaths,
+        IReadOnlyList<CustomRule> customRules)
     {
         FileSystemInfo[] entries;
 
         try
         {
-            entries = directory.GetFileSystemInfos();
+            entries =
+                directory.GetFileSystemInfos();
         }
         catch (UnauthorizedAccessException)
         {
@@ -97,7 +103,9 @@ public class ScanService
                     var operation =
                         _classificationService.Classify(
                             subdirectory,
-                            rootFolder);
+                            rootFolder,
+                            customRules);
+
                     if (ignoredPaths.Contains(
                             subdirectory.FullName))
                     {
@@ -110,6 +118,7 @@ public class ScanService
                         results.Add(operation);
                         continue;
                     }
+
                     if (ProtectedDirectoryNames.Contains(
                             subdirectory.Name))
                     {
@@ -145,7 +154,8 @@ public class ScanService
                             rootFolder,
                             true,
                             results,
-                            ignoredPaths);
+                            ignoredPaths,
+                            customRules);
                     }
                 }
                 else if (entry is FileInfo file)
@@ -153,7 +163,8 @@ public class ScanService
                     var operation =
                         _classificationService.Classify(
                             file,
-                            rootFolder);
+                            rootFolder,
+                            customRules);
 
                     if (ignoredPaths.Contains(
                             file.FullName))
@@ -173,7 +184,8 @@ public class ScanService
             }
             catch (IOException)
             {
-                // Skip files/folders that disappear or become locked.
+                // Skip files/folders that disappear
+                // or become locked during scanning.
             }
         }
     }
