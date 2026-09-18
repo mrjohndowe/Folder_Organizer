@@ -232,82 +232,7 @@ public class DatabaseService
         }
     }
 
-    private static void ValidateCustomRule(
-    string folderName,
-    string extensions)
-    {
-        if (string.IsNullOrWhiteSpace(folderName))
-        {
-            throw new InvalidOperationException(
-                "Folder name cannot be blank.");
-        }
-
-        var trimmedFolderName =
-            folderName.Trim();
-
-        if (trimmedFolderName is "." or "..")
-        {
-            throw new InvalidOperationException(
-                "Folder name cannot be . or ..");
-        }
-
-        if (trimmedFolderName.IndexOfAny(
-                Path.GetInvalidFileNameChars()) >= 0)
-        {
-            throw new InvalidOperationException(
-                "Folder name contains invalid Windows characters.");
-        }
-
-        if (trimmedFolderName.Contains(
-                Path.DirectorySeparatorChar) ||
-            trimmedFolderName.Contains(
-                Path.AltDirectorySeparatorChar))
-        {
-            throw new InvalidOperationException(
-                "Folder name must be a single folder name, not a path.");
-        }
-
-        if (string.IsNullOrWhiteSpace(extensions))
-        {
-            return;
-        }
-
-        var values =
-            extensions.Split(
-                [',', ';', ' '],
-                StringSplitOptions.RemoveEmptyEntries |
-                StringSplitOptions.TrimEntries);
-
-        foreach (var value in values)
-        {
-            var extension =
-                value.StartsWith('.')
-                    ? value
-                    : "." + value;
-
-            if (extension.Length < 2)
-            {
-                throw new InvalidOperationException(
-                    "Each extension must contain a file type.");
-            }
-
-            if (extension.IndexOfAny(
-                    Path.GetInvalidFileNameChars()) >= 0)
-            {
-                throw new InvalidOperationException(
-                    $"Invalid extension: {value}");
-            }
-
-            if (extension.Contains('*') ||
-                extension.Contains('?') ||
-                extension.Contains('\\') ||
-                extension.Contains('/'))
-            {
-                throw new InvalidOperationException(
-                    $"Invalid extension: {value}");
-            }
-        }
-    }
+   
 
     public async Task MoveCustomRuleAsync(
     long ruleId,
@@ -867,6 +792,76 @@ public class DatabaseService
             fullPath);
 
         await command.ExecuteNonQueryAsync();
+    }
+
+    private static void ValidateCustomRule(
+    string folderName,
+    string extensions)
+    {
+        if (string.IsNullOrWhiteSpace(folderName))
+        {
+            throw new InvalidOperationException(
+                "Folder name cannot be blank.");
+        }
+
+        var trimmedFolderName =
+            folderName.Trim();
+
+        if (trimmedFolderName is "." or "..")
+        {
+            throw new InvalidOperationException(
+                "Folder name cannot be . or ..");
+        }
+
+        if (trimmedFolderName.IndexOfAny(
+                Path.GetInvalidFileNameChars()) >= 0)
+        {
+            throw new InvalidOperationException(
+                "Folder name contains invalid Windows characters.");
+        }
+
+        if (trimmedFolderName.Contains(
+                Path.DirectorySeparatorChar) ||
+            trimmedFolderName.Contains(
+                Path.AltDirectorySeparatorChar))
+        {
+            throw new InvalidOperationException(
+                "Folder name must be a single folder name, not a path.");
+        }
+
+        if (string.IsNullOrWhiteSpace(extensions))
+        {
+            return;
+        }
+
+        var values =
+            extensions.Split(
+                [',', ';', ' '],
+                StringSplitOptions.RemoveEmptyEntries |
+                StringSplitOptions.TrimEntries);
+
+        foreach (var value in values)
+        {
+            var extension =
+                value.StartsWith('.')
+                    ? value
+                    : "." + value;
+
+            if (extension.Length < 2)
+            {
+                throw new InvalidOperationException(
+                    "Each extension must contain a file type.");
+            }
+
+            if (extension.Contains('*') ||
+                extension.Contains('?') ||
+                extension.Contains('\\') ||
+                extension.Contains('/'))
+            {
+                throw new InvalidOperationException(
+                    $"Invalid extension: {value}");
+            }
+        }
     }
 
     public async Task InitializeAsync()
