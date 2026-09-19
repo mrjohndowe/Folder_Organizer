@@ -1,7 +1,9 @@
 <Window x:Class="FolderOrganizer.HistoryWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Organization History"
+		Background="{DynamicResource WindowBackgroundBrush}"
+        Foreground="{DynamicResource TextBrush}"
+        Title="MJD Organization History"
         Width="1200"
         Height="700"
         MinWidth="900"
@@ -22,6 +24,8 @@
                    Text="Organization Runs"
                    FontSize="22"
                    FontWeight="Bold"
+				   Background="{DynamicResource ControlBackgroundBrush}"
+                   Foreground="{DynamicResource TextBrush}"
                    Margin="0,0,0,10"/>
 
         <DataGrid Grid.Row="1"
@@ -30,6 +34,9 @@
                   CanUserAddRows="False"
                   IsReadOnly="True"
                   SelectionMode="Single"
+				  Background="{DynamicResource PanelBackgroundBrush}"
+                  Foreground="{DynamicResource TextBrush}"
+                  BorderBrush="{DynamicResource BorderBrush}"
                   SelectionChanged="RunsDataGrid_SelectionChanged">
 
             <DataGrid.Columns>

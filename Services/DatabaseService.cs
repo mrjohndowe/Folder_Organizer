@@ -922,6 +922,12 @@ public class DatabaseService
 
         command.CommandText =
         """
+        CREATE TABLE IF NOT EXISTS AppSettings
+        (
+            SettingKey TEXT PRIMARY KEY,
+            SettingValue TEXT NOT NULL
+        );
+
         CREATE TABLE IF NOT EXISTS OrganizationRuns
         (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -964,6 +970,18 @@ public class DatabaseService
         CREATE INDEX IF NOT EXISTS
             IX_CustomRules_Priority
             ON CustomRules(Priority);
+
+        CREATE TABLE IF NOT EXISTS SpecialRules
+        (
+            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            OrganizeByYear INTEGER NOT NULL DEFAULT 0,
+            OrganizeByMonth INTEGER NOT NULL DEFAULT 0,
+            UseCreationDate INTEGER NOT NULL DEFAULT 1,
+            Extensions TEXT NOT NULL,
+            IsEnabled INTEGER NOT NULL DEFAULT 1,
+            CreatedAt TEXT NOT NULL,
+            UpdatedAt TEXT NOT NULL
+        );
 
         CREATE INDEX IF NOT EXISTS
             IX_MoveHistory_RunId
@@ -1029,6 +1047,73 @@ public class DatabaseService
             await command.ExecuteScalarAsync();
 
         return Convert.ToInt64(result);
+    }
+
+    public async Task<string?> GetSettingAsync(
+    string key)
+    {
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+
+        command.CommandText =
+        """
+    SELECT SettingValue
+    FROM AppSettings
+    WHERE SettingKey = $key;
+    """;
+
+        command.Parameters.AddWithValue(
+            "$key",
+            key);
+
+        var result =
+            await command.ExecuteScalarAsync();
+
+        return result?.ToString();
+    }
+
+    public async Task SetSettingAsync(
+        string key,
+        string value)
+    {
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+
+        command.CommandText =
+        """
+    INSERT INTO AppSettings
+    (
+        SettingKey,
+        SettingValue
+    )
+    VALUES
+    (
+        $key,
+        $value
+    )
+
+    ON CONFLICT(SettingKey)
+    DO UPDATE SET
+        SettingValue = excluded.SettingValue;
+    """;
+
+        command.Parameters.AddWithValue(
+            "$key",
+            key);
+
+        command.Parameters.AddWithValue(
+            "$value",
+            value);
+
+        await command.ExecuteNonQueryAsync();
     }
 
     public async Task RecordMoveAsync(
@@ -1149,5 +1234,218 @@ public class DatabaseService
             runId);
 
         await command.ExecuteNonQueryAsync();
+    }
+
+    // Special Rule Methods
+
+    public async Task<SpecialRule> GetSpecialRuleAsync()
+    {
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+
+        command.CommandText =
+        """
+        SELECT
+            Id,
+            OrganizeByYear,
+            OrganizeByMonth,
+            UseCreationDate,
+            Extensions,
+            IsEnabled,
+            CreatedAt,
+            UpdatedAt
+        FROM SpecialRules
+        WHERE Id = 1;
+        """;
+
+        await using var reader =
+            await command.ExecuteReaderAsync();
+
+        if (await reader.ReadAsync())
+        {
+            return new SpecialRule
+            {
+                Id = reader.GetInt64(0),
+                OrganizeByYear = reader.GetInt32(1) != 0,
+                OrganizeByMonth = reader.GetInt32(2) != 0,
+                UseCreationDate = reader.GetInt32(3) != 0,
+                Extensions = reader.GetString(4),
+                IsEnabled = reader.GetInt32(5) != 0,
+                CreatedAt = DateTime.Parse(reader.GetString(6)),
+                UpdatedAt = DateTime.Parse(reader.GetString(7))
+            };
+        }
+
+        // Create default special rule if none exists
+        return await CreateDefaultSpecialRuleAsync();
+    }
+
+    public async Task<SpecialRule> UpdateSpecialRuleAsync(
+        SpecialRule rule)
+    {
+        rule.Extensions =
+            NormalizeExtensions(rule.Extensions);
+
+        ValidateSpecialRule(rule);
+
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+
+        command.CommandText =
+        """
+        UPDATE SpecialRules
+        SET
+            OrganizeByYear = $organizeByYear,
+            OrganizeByMonth = $organizeByMonth,
+            UseCreationDate = $useCreationDate,
+            Extensions = $extensions,
+            IsEnabled = $isEnabled,
+            UpdatedAt = $updatedAt
+        WHERE Id = $id;
+        """;
+
+        command.Parameters.AddWithValue(
+            "$organizeByYear",
+            rule.OrganizeByYear ? 1 : 0);
+
+        command.Parameters.AddWithValue(
+            "$organizeByMonth",
+            rule.OrganizeByMonth ? 1 : 0);
+
+        command.Parameters.AddWithValue(
+            "$useCreationDate",
+            rule.UseCreationDate ? 1 : 0);
+
+        command.Parameters.AddWithValue(
+            "$extensions",
+            rule.Extensions);
+
+        command.Parameters.AddWithValue(
+            "$isEnabled",
+            rule.IsEnabled ? 1 : 0);
+
+        command.Parameters.AddWithValue(
+            "$updatedAt",
+            DateTime.UtcNow.ToString("O"));
+
+        command.Parameters.AddWithValue(
+            "$id",
+            rule.Id);
+
+        await command.ExecuteNonQueryAsync();
+
+        return await GetSpecialRuleAsync();
+    }
+
+    private async Task<SpecialRule> CreateDefaultSpecialRuleAsync()
+    {
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var now = DateTime.UtcNow.ToString("O");
+
+        var command = connection.CreateCommand();
+
+        command.CommandText =
+        """
+        INSERT INTO SpecialRules
+        (
+            OrganizeByYear,
+            OrganizeByMonth,
+            UseCreationDate,
+            Extensions,
+            IsEnabled,
+            CreatedAt,
+            UpdatedAt
+        )
+        VALUES
+        (
+            0,
+            0,
+            1,
+            '',
+            1,
+            $createdAt,
+            $updatedAt
+        );
+
+        SELECT last_insert_rowid();
+        """;
+
+        command.Parameters.AddWithValue(
+            "$createdAt",
+            now);
+
+        command.Parameters.AddWithValue(
+            "$updatedAt",
+            now);
+
+        var result =
+            await command.ExecuteScalarAsync();
+
+        return new SpecialRule
+        {
+            Id = Convert.ToInt64(result),
+            OrganizeByYear = false,
+            OrganizeByMonth = false,
+            UseCreationDate = true,
+            Extensions = string.Empty,
+            IsEnabled = true,
+            CreatedAt = DateTime.Parse(now),
+            UpdatedAt = DateTime.Parse(now)
+        };
+    }
+
+    private static void ValidateSpecialRule(
+        SpecialRule rule)
+    {
+        if (rule.OrganizeByMonth && !rule.OrganizeByYear)
+        {
+            throw new InvalidOperationException(
+                "Organize by month requires organize by year to be enabled.");
+        }
+
+        // Validate extensions if provided
+        if (!string.IsNullOrWhiteSpace(rule.Extensions))
+        {
+            var values =
+                rule.Extensions.Split(
+                    [',', ';', ' '],
+                    StringSplitOptions.RemoveEmptyEntries |
+                    StringSplitOptions.TrimEntries);
+
+            foreach (var value in values)
+            {
+                var extension =
+                    value.StartsWith('.')
+                        ? value
+                        : "." + value;
+
+                if (extension.Length < 2)
+                {
+                    throw new InvalidOperationException(
+                        "Each extension must contain a file type.");
+                }
+
+                if (extension.Contains('*') ||
+                    extension.Contains('?') ||
+                    extension.Contains('\\') ||
+                    extension.Contains('/'))
+                {
+                    throw new InvalidOperationException(
+                        $"Invalid extension: {value}");
+                }
+            }
+        }
     }
 }
