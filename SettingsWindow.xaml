@@ -7,6 +7,7 @@
     Height="600"
     MinWidth="700"
     MinHeight="450"
+	xmlns:svgc="clr-namespace:SharpVectors.Converters;assembly=SharpVectors.Converters.Wpf"
     Background="{DynamicResource WindowBackgroundBrush}"
     Foreground="{DynamicResource TextBrush}"
     WindowStartupLocation="CenterOwner">
@@ -14,23 +15,12 @@
 	<Grid Margin="16">
 
 		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"/>
-			<!-- 0 Header -->
-
-			<RowDefinition Height="Auto"/>
-			<!-- 1 Custom Rules header + buttons -->
-
-			<RowDefinition Height="2*"/>
-			<!-- 2 Custom Rules DataGrid -->
-
-			<RowDefinition Height="Auto"/>
-			<!-- 3 Built-in Rules heading -->
-
-			<RowDefinition Height="*"/>
-			<!-- 4 Built-in Rules DataGrid -->
-
-			<RowDefinition Height="Auto"/>
-			<!-- 5 Status + Dark Mode + Close -->
+			<RowDefinition Height="Auto"/> <!-- 0 Header -->
+			<RowDefinition Height="Auto"/> <!-- 1 Custom Rules header + buttons -->
+			<RowDefinition Height="2*"/> <!-- 2 Custom Rules DataGrid -->
+			<RowDefinition Height="Auto"/> <!-- 3 Built-in Rules heading -->
+			<RowDefinition Height="*"/> <!-- 4 Built-in Rules DataGrid -->
+			<RowDefinition Height="Auto"/> <!-- 5 Status + Dark Mode + Close -->
 		</Grid.RowDefinitions>
 
 		<!-- Header -->
@@ -110,6 +100,8 @@
 
 			<DataGrid.Columns>
 
+			
+
 				<!-- Drag Handle -->
 				<DataGridTemplateColumn
                     Width="36"
@@ -183,6 +175,27 @@
 
 				</DataGridTemplateColumn>
 
+				<DataGridTemplateColumn
+                        Header=""
+                        Width="48"
+                        IsReadOnly="True">
+
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+
+							<svgc:SvgViewbox
+                                Source="pack://application:,,,/Assets/root_folder.svg"
+                                Width="22"
+                                Height="22"
+                                Stretch="Uniform"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+
+				</DataGridTemplateColumn>
+
 				<DataGridTextColumn
                     Header="Folder"
                     Width="2*"
@@ -224,10 +237,26 @@
 
 			<DataGrid.Columns>
 
-				<DataGridTextColumn
-                    Header=""
-                    Width="45"
-                    Binding="{Binding Icon}"/>
+				<DataGridTemplateColumn
+                        Header=""
+                        Width="48"
+                        IsReadOnly="True">
+
+				    <DataGridTemplateColumn.CellTemplate>
+					    <DataTemplate>
+
+							<svgc:SvgViewbox
+							    Source="{Binding IconPath}"
+							    Width="22"
+							    Height="22"
+							    Stretch="Uniform"
+							    HorizontalAlignment="Center"
+							    VerticalAlignment="Center"/>
+
+					    </DataTemplate>
+				    </DataGridTemplateColumn.CellTemplate>
+
+			    </DataGridTemplateColumn>
 
 				<DataGridTextColumn
                     Header="Folder"

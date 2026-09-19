@@ -459,31 +459,37 @@ public partial class SettingsWindow : Window
     [
         new
         {
-            Icon = "📁",
+            IconPath = "pack://application:,,,/Assets/file.svg",
             Folder = "Documents",
             Extensions = ".pdf, .doc, .docx, .txt, .rtf, .odt, .xls, .xlsx, .csv, .ppt, .pptx"
         },
         new
         {
-            Icon = "🖼️",
+            IconPath = "pack://application:,,,/Assets/image.svg",
             Folder = "Pictures",
             Extensions = ".jpg, .jpeg, .png, .gif, .bmp, .webp, .tif, .tiff, .svg"
         },
         new
         {
-            Icon = "🎬",
+            IconPath = "pack://application:,,,/Assets/video.svg",
             Folder = "Videos",
             Extensions = ".mp4, .mkv, .avi, .mov, .wmv, .webm, .m4v"
         },
         new
         {
-            Icon = "🎵",
+            IconPath = "pack://application:,,,/Assets/photoshop.svg",
+            Folder = "Creative",
+            Extensions = ".psd, .ai "
+        },
+        new
+        {
+            IconPath = "pack://application:,,,/Assets/music.svg",
             Folder = "Music",
             Extensions = ".mp3, .wav, .flac, .aac, .ogg, .m4a, .wma"
         },
         new
         {
-            Icon = "📦",
+            IconPath = "pack://application:,,,/Assets/zip.svg",
             Folder = "Archives",
             Extensions = ".zip, .rar, .7z, .tar, .gz"
         }

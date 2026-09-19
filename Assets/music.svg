@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <defs>
+    <clipPath id="frameClip">
+      <rect x="12" y="12" width="72" height="72" rx="17"/>
+    </clipPath>
+
+    <radialGradient id="frameTL" cx="12" cy="12" r="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff3f5f" stop-opacity=".95"/>
+      <stop offset=".72" stop-color="#ff3f5f" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="frameTR" cx="84" cy="12" r="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffb05a" stop-opacity=".95"/>
+      <stop offset=".72" stop-color="#ffb05a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="frameBL" cx="12" cy="84" r="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8f00ff"/>
+      <stop offset=".70" stop-color="#b10dff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="frameBR" cx="84" cy="84" r="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#18c5ec"/>
+      <stop offset=".72" stop-color="#18c5ec" stop-opacity="0"/>
+    </radialGradient>
+
+    <clipPath id="noteClip">
+      <path d="M39 32 L61 27 L61 37 L41 41 Z"/>
+      <rect x="39" y="32" width="3" height="30.5" rx="1"/>
+      <rect x="59" y="27" width="3" height="31.5" rx="1"/>
+      <ellipse cx="35.5" cy="62.5" rx="6.3" ry="5.1" transform="rotate(-12 35.5 62.5)"/>
+      <ellipse cx="55.7" cy="58.8" rx="6.3" ry="5.1" transform="rotate(-12 55.7 58.8)"/>
+    </clipPath>
+
+    <radialGradient id="noteTL" cx="36" cy="28" r="35" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f64268"/>
+      <stop offset=".78" stop-color="#f64268" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="noteBL" cx="30" cy="68" r="28" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8a00ff"/>
+      <stop offset=".80" stop-color="#a000f5" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="noteBR" cx="63" cy="68" r="28" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#339ee8"/>
+      <stop offset=".80" stop-color="#339ee8" stop-opacity="0"/>
+    </radialGradient>
+
+    <mask id="frameCutout">
+      <rect x="12" y="12" width="72" height="72" rx="17" fill="white"/>
+
+      <rect x="14.5" y="14.5" width="70%" height="70%" rx="17" fill="black"/>
+
+    </mask>
+  </defs>
+
+  <!-- Multicolor rounded frame -->
+  <g clip-path="url(#frameClip)" mask="url(#frameCutout)">
+    <rect x="12" y="12" width="72" height="72" fill="#f85e55"/>
+    <rect x="12" y="12" width="72" height="72" fill="url(#frameTL)"/>
+    <rect x="12" y="12" width="72" height="72" fill="url(#frameTR)"/>
+    <rect x="12" y="12" width="72" height="72" fill="url(#frameBL)"/>
+    <rect x="12" y="12" width="72" height="72" fill="url(#frameBR)"/>
+  </g>
+
+  <!-- White center -->
+  <!-- <rect x="20" y="20" width="56" height="56" rx="11" fill="#fff"/> -->
+
+  <!-- Music note -->
+  <g clip-path="url(#noteClip)">
+    <rect x="28" y="25" width="36" height="45" fill="#e84572"/>
+    <rect x="28" y="25" width="36" height="45" fill="url(#noteTL)"/>
+    <rect x="28" y="25" width="36" height="45" fill="url(#noteBL)"/>
+    <rect x="28" y="25" width="36" height="45" fill="url(#noteBR)"/>
+  </g>
+</svg>

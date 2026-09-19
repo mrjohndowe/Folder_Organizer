@@ -1,3 +1,4 @@
+using FolderOrganizer.Services;
 namespace FolderOrganizer.Models;
 
 public class MoveOperation
@@ -20,4 +21,6 @@ public class MoveOperation
 
     public bool IsIgnored =>
         Action.Equals("IGNORE", StringComparison.OrdinalIgnoreCase);
+
+    public string IconPath => FileIconService.GetIconPath(SourcePath);
 }

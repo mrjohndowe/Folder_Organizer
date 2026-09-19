@@ -4,6 +4,7 @@
 		Background="{DynamicResource WindowBackgroundBrush}"
         Foreground="{DynamicResource TextBrush}"
         Title="MJD Folder Organizer"
+	    xmlns:svgc="clr-namespace:SharpVectors.Converters;assembly=SharpVectors.Converters.Wpf"
         Width="1200"
         Height="720"
         MinWidth="900"
@@ -128,10 +129,26 @@
 
             <DataGrid.Columns>
 
-				<DataGridTextColumn
-                    Header=""
-                    Binding="{Binding Icon}"
-                    Width="45"/>
+				<DataGridTemplateColumn
+                        Header=""
+                        Width="48"
+                        IsReadOnly="True">
+
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+
+							<svgc:SvgViewbox
+							    Source="{Binding IconPath}"
+							    Width="22"
+							    Height="22"
+							    Stretch="Uniform"
+							    HorizontalAlignment="Center"
+							    VerticalAlignment="Center"/>
+
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+
+				</DataGridTemplateColumn>
 
 				<DataGridCheckBoxColumn
 	                 Header="Use"
