@@ -35,7 +35,7 @@ public partial class SettingsWindow : Window
     }
 
     private async void DarkModeCheckBox_Changed(
-        object sender,
+    object sender,
     RoutedEventArgs e)
     {
         if (_isLoading)
@@ -57,8 +57,6 @@ public partial class SettingsWindow : Window
                 ? "Dark mode enabled."
                 : "Light mode enabled.";
     }
-
-
 
     private void RulesDataGrid_PreviewMouseLeftButtonDown(
     object sender,
@@ -195,6 +193,16 @@ public partial class SettingsWindow : Window
 
             StatusTextBlock.Text =
                 $"{_rules.Count:N0} custom rules";
+
+            var darkModeSetting =
+                await _databaseService.GetSettingAsync(
+                    "DarkMode");
+
+            DarkModeCheckBox.IsChecked =
+                string.Equals(
+                    darkModeSetting,
+                    "true",
+                    StringComparison.OrdinalIgnoreCase);
         }
         catch (Exception ex)
         {
@@ -211,17 +219,6 @@ public partial class SettingsWindow : Window
         {
             _isLoading = false;
         }
-
-        var darkModeSetting =
-        await _databaseService.GetSettingAsync(
-            "DarkMode");
-
-        DarkModeCheckBox.IsChecked =
-            string.Equals(
-                darkModeSetting,
-                "true",
-                StringComparison.OrdinalIgnoreCase);
-
     }
 
     private async void DeleteRuleButton_Click(
@@ -351,7 +348,7 @@ public partial class SettingsWindow : Window
         }
     }
 
-    
+
 
     private void RulesDataGrid_CellEditEnding(
     object sender,
@@ -460,7 +457,7 @@ public partial class SettingsWindow : Window
 
     private readonly object[] _builtInRules =
     [
-       new
+        new
         {
             Icon = "📁",
             Folder = "Documents",
@@ -490,7 +487,7 @@ public partial class SettingsWindow : Window
             Folder = "Archives",
             Extensions = ".zip, .rar, .7z, .tar, .gz"
         }
-            ];
+    ];
 
     private void CloseButton_Click(
         object sender,

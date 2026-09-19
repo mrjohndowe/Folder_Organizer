@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		Background="{DynamicResource WindowBackgroundBrush}"
         Foreground="{DynamicResource TextBrush}"
-        Title="Folder Organizer"
+        Title="MJD Folder Organizer"
         Width="1200"
         Height="720"
         MinWidth="900"
@@ -115,13 +115,16 @@
 
         <!-- Preview -->
         <DataGrid Grid.Row="3"
-                  x:Name="PreviewDataGrid"
-                  AutoGenerateColumns="False"
-                  CanUserAddRows="False"
-                  CanUserDeleteRows="False"
-                  SelectionMode="Extended"
-                  GridLinesVisibility="Horizontal"
-                  IsReadOnly="False">
+                x:Name="PreviewDataGrid"
+                AutoGenerateColumns="False"
+				Background="{DynamicResource PanelBackgroundBrush}"
+                Foreground="{DynamicResource TextBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                CanUserAddRows="False"
+                CanUserDeleteRows="False"
+                SelectionMode="Extended"
+                GridLinesVisibility="Horizontal"
+                IsReadOnly="False">
 
             <DataGrid.Columns>
 
@@ -185,8 +188,10 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock x:Name="StatusTextBlock"
-                       VerticalAlignment="Center"
-                       Text="Ready."/>
+					Background="{DynamicResource ControlBackgroundBrush}"
+                    Foreground="{DynamicResource TextBrush}"
+                    VerticalAlignment="Center"
+                    Text="Ready."/>
 
             <StackPanel Grid.Column="1"
                         Orientation="Horizontal">
