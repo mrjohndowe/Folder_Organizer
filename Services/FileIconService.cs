@@ -43,7 +43,13 @@ public class FileIconService
 
             ["asm"] = "assembly",
 
-            ["ahk"] = "ahk"
+            ["ahk"] = "ahk",
+
+            ["txt"] = "text",
+
+            ["jpg"] = "image",
+            ["jpeg"] = "image",
+            ["png"] = "image",
         };
 
     public static string GetIconPath(string? filePath)
