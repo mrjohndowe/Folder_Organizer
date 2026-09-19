@@ -10,7 +10,7 @@
         MinWidth="900"
         MinHeight="550"
         WindowStartupLocation="CenterScreen">
-	
+
 
     <Grid Margin="16">
 
@@ -46,8 +46,8 @@
                 Padding="14,8"
                 Click="SettingsButton_Click"/>
 
-			
-			
+
+
         </Grid>
 
         <!-- Folder selection -->
@@ -159,13 +159,17 @@
                                      Height="24"
                                      VerticalContentAlignment="Center"
                                      Text=""
-                                     ToolTip="Leave empty to apply to all files. Use commas, semicolons, or spaces to separate extensions (e.g., .jpg, .png, .gif)"/>
+                                     ToolTip=""/>
 
                             <Button Content="Apply Special Rule"
                                     Width="130"
-                                    Height="24"
+                                    Height="34"
                                     Margin="8,0,0,0"
                                     Click="ApplySpecialRuleButton_Click"/>
+
+							<TextBlock Text="Leave empty to apply to all files. Use commas, semicolons, or spaces to separate extensions (e.g., .jpg, .png, .gif)"
+									   Margin="15,15,0,0"
+									   Opacity="0.65"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>

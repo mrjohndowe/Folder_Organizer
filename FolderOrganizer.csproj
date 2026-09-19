@@ -34,4 +34,10 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+		<Compile Update="SplashWindow.xaml.cs">
+			<DependentUpon>SplashWindow.xaml</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
 </Project>
