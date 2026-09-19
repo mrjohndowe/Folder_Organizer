@@ -34,7 +34,29 @@ public partial class SettingsWindow : Window
         Loaded += SettingsWindow_Loaded;
     }
 
+    private async void DarkModeCheckBox_Changed(
+    object sender,
+    RoutedEventArgs e)
+    {
+        if (_isLoading)
+        {
+            return;
+        }
 
+        var enabled =
+            DarkModeCheckBox.IsChecked == true;
+
+        ThemeService.Apply(enabled);
+
+        await _databaseService.SetSettingAsync(
+            "DarkMode",
+            enabled ? "true" : "false");
+
+        StatusTextBlock.Text =
+            enabled
+                ? "Dark mode enabled."
+                : "Light mode enabled.";
+    }
 
     private void RulesDataGrid_PreviewMouseLeftButtonDown(
     object sender,
@@ -171,6 +193,16 @@ public partial class SettingsWindow : Window
 
             StatusTextBlock.Text =
                 $"{_rules.Count:N0} custom rules";
+
+            var darkModeSetting =
+                await _databaseService.GetSettingAsync(
+                    "DarkMode");
+
+            DarkModeCheckBox.IsChecked =
+                string.Equals(
+                    darkModeSetting,
+                    "true",
+                    StringComparison.OrdinalIgnoreCase);
         }
         catch (Exception ex)
         {
@@ -316,7 +348,7 @@ public partial class SettingsWindow : Window
         }
     }
 
-    
+
 
     private void RulesDataGrid_CellEditEnding(
     object sender,
@@ -427,26 +459,37 @@ public partial class SettingsWindow : Window
     [
         new
         {
+            IconPath = "pack://application:,,,/Assets/file.svg",
             Folder = "Documents",
             Extensions = ".pdf, .doc, .docx, .txt, .rtf, .odt, .xls, .xlsx, .csv, .ppt, .pptx"
         },
         new
         {
+            IconPath = "pack://application:,,,/Assets/image.svg",
             Folder = "Pictures",
             Extensions = ".jpg, .jpeg, .png, .gif, .bmp, .webp, .tif, .tiff, .svg"
         },
         new
         {
+            IconPath = "pack://application:,,,/Assets/video.svg",
             Folder = "Videos",
             Extensions = ".mp4, .mkv, .avi, .mov, .wmv, .webm, .m4v"
         },
         new
         {
+            IconPath = "pack://application:,,,/Assets/photoshop.svg",
+            Folder = "Creative",
+            Extensions = ".psd, .ai "
+        },
+        new
+        {
+            IconPath = "pack://application:,,,/Assets/music.svg",
             Folder = "Music",
             Extensions = ".mp3, .wav, .flac, .aac, .ogg, .m4a, .wma"
         },
         new
         {
+            IconPath = "pack://application:,,,/Assets/zip.svg",
             Folder = "Archives",
             Extensions = ".zip, .rar, .7z, .tar, .gz"
         }
