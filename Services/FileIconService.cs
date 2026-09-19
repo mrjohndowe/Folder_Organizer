@@ -51,10 +51,25 @@ public class FileIconService
         const string defaultIcon =
             "pack://application:,,,/Assets/file.svg";
 
+        const string folderIcon =
+            "pack://application:,,,/Assets/folder.svg";
+
         if (string.IsNullOrWhiteSpace(filePath))
         {
             return defaultIcon;
         }
+
+        if (Directory.Exists(filePath))
+        {
+            return folderIcon;
+        }
+
+        if (Directory.Exists(filePath) ||
+         filePath.EndsWith(Path.DirectorySeparatorChar) ||
+         filePath.EndsWith(Path.AltDirectorySeparatorChar))
+            {
+                return folderIcon;
+            }
 
         var extension = Path
             .GetExtension(filePath)
