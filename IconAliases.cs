@@ -10,6 +10,48 @@ public static class IconAliases
     private static readonly Dictionary<string, string> ManualOverrides =
         new(StringComparer.OrdinalIgnoreCase)
     {
+        // Image extensions - all map to image.svg
+        ["jpg"] = "image",
+        ["jpeg"] = "image",
+        ["png"] = "image",
+        ["gif"] = "image",
+        ["bmp"] = "image",
+        ["tiff"] = "image",
+        ["tif"] = "image",
+        ["webp"] = "image",
+        ["ico"] = "image",
+        ["svg"] = "svg",
+        ["avif"] = "avif",
+        ["heic"] = "image",
+        ["heif"] = "image",
+        ["raw"] = "image",
+        ["cr2"] = "image",
+        ["nef"] = "image",
+        ["arw"] = "image",
+        ["dng"] = "image",
+
+        // Text extensions - all map to text.svg
+        ["txt"] = "text",
+        ["text"] = "text",
+        ["log"] = "log",
+        ["rst"] = "text",
+        ["rtf"] = "text",
+        ["nfo"] = "text",
+        ["md"] = "markdown",
+        ["markdown"] = "markdown",
+        ["readme"] = "markdown",
+        ["changelog"] = "markdown",
+        ["license"] = "license",
+        ["licence"] = "license",
+        ["authors"] = "markdown",
+        ["contributing"] = "markdown",
+        ["todo"] = "todo",
+        ["cfg"] = "config",
+        ["conf"] = "config",
+        ["ini"] = "ini",
+        ["env"] = "dotenv",
+        ["properties"] = "config",
+
         // Multiple extensions mapping to one icon
         ["mdb"] = "access",
         ["accdb"] = "access",
@@ -74,12 +116,6 @@ public static class IconAliases
         ["gem"] = "ruby",
         ["gemspec"] = "ruby",
         ["toml"] = "toml",
-        ["mdown"] = "markdown",
-        ["mkdn"] = "markdown",
-        ["mkd"] = "markdown",
-        ["mdwn"] = "markdown",
-        ["mdtxt"] = "markdown",
-        ["mdtext"] = "markdown",
         ["sqlite3"] = "sqlite",
         ["db3"] = "db",
         ["bash"] = "shell",
@@ -261,11 +297,6 @@ public static class IconAliases
         ["jest.config.js"] = "jest",
         ["jasmine.json"] = "jasmine",
         ["mocha.opts"] = "mocha",
-        ["readme"] = "markdown",
-        ["changelog"] = "markdown",
-        ["contributing"] = "markdown",
-        ["authors"] = "markdown",
-        ["todo"] = "todo",
         ["conf"] = "config",
         ["cfg"] = "config",
         ["lock"] = "lock",
@@ -298,9 +329,6 @@ public static class IconAliases
         ["seeds"] = "sql",
         ["fixture"] = "test",
         ["fixtures"] = "test",
-        ["rst"] = "text",
-        ["rtf"] = "text",
-        ["nfo"] = "text",
         ["tsv"] = "excel",
         ["odt"] = "libreoffice_writer",
         ["ods"] = "libreoffice_calc",
@@ -316,7 +344,6 @@ public static class IconAliases
         ["cbr"] = "epub",
         ["cb7"] = "epub",
         ["cbt"] = "epub",
-        ["mtl"] = "text",
         ["max"] = "maya",
         ["ma"] = "maya",
         ["mb"] = "maya",
@@ -688,14 +715,14 @@ public static class IconAliases
                     continue;
                 }
 
+                // Skip if this extension already has a manual override
+                if (ManualOverrides.ContainsKey(iconName))
+                {
+                    continue;
+                }
+
                 // Add direct mapping (extension -> icon name)
                 _extensionToIcon[iconName] = iconName;
-
-                // Add common variations
-                if (iconName.Length <= 8) // Only for short icon names to avoid false positives
-                {
-                    _extensionToIcon[iconName] = iconName;
-                }
             }
 
             // Apply manual overrides on top of auto-generated mappings
