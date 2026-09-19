@@ -17,6 +17,7 @@ public partial class MainWindow : Window
 
     private readonly ClassificationService _classificationService;
     private readonly ScanService _scanService;
+    private SpecialRule? _currentSpecialRule;
 
     public MainWindow()
     {
@@ -136,6 +137,9 @@ public partial class MainWindow : Window
                     darkModeSetting,
                     "true",
                     StringComparison.OrdinalIgnoreCase));
+
+            // Load special rule settings
+            await LoadSpecialRuleSettingsAsync();
         }
         catch (Exception ex)
         {
@@ -144,6 +148,120 @@ public partial class MainWindow : Window
                 "Folder Organizer",
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
+        }
+    }
+
+    private async Task LoadSpecialRuleSettingsAsync()
+    {
+        try
+        {
+            _currentSpecialRule = await _databaseService.GetSpecialRuleAsync();
+
+            // Update UI controls
+            OrganizeByYearCheckBox.IsChecked = _currentSpecialRule.OrganizeByYear;
+            OrganizeByMonthCheckBox.IsChecked = _currentSpecialRule.OrganizeByMonth;
+            OrganizeByMonthCheckBox.IsEnabled = _currentSpecialRule.OrganizeByYear;
+            UseCreationDateCheckBox.IsChecked = _currentSpecialRule.UseCreationDate;
+            SpecialRuleExtensionsTextBox.Text = _currentSpecialRule.Extensions;
+
+            // Update classification service with current special rule
+            _classificationService.SetSpecialRule(_currentSpecialRule);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"Failed to load special rule settings.\n\n{ex.Message}",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
+    }
+
+    private void OrganizeByYearCheckBox_Checked(
+        object sender,
+        RoutedEventArgs e)
+    {
+        OrganizeByMonthCheckBox.IsEnabled = true;
+    }
+
+    private void OrganizeByYearCheckBox_Unchecked(
+        object sender,
+        RoutedEventArgs e)
+    {
+        OrganizeByMonthCheckBox.IsEnabled = false;
+        OrganizeByMonthCheckBox.IsChecked = false;
+    }
+
+    private void OrganizeByMonthCheckBox_Checked(
+        object sender,
+        RoutedEventArgs e)
+    {
+        // Month organization is now enabled
+    }
+
+    private void OrganizeByMonthCheckBox_Unchecked(
+        object sender,
+        RoutedEventArgs e)
+    {
+        // Month organization is now disabled
+    }
+
+    private void UseCreationDateCheckBox_Checked(
+        object sender,
+        RoutedEventArgs e)
+    {
+        // Will use creation date
+    }
+
+    private void UseCreationDateCheckBox_Unchecked(
+        object sender,
+        RoutedEventArgs e)
+    {
+        // Will use modification date
+    }
+
+    private async void ApplySpecialRuleButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        try
+        {
+            if (_currentSpecialRule == null)
+            {
+                _currentSpecialRule = await _databaseService.GetSpecialRuleAsync();
+            }
+
+            _currentSpecialRule.OrganizeByYear = OrganizeByYearCheckBox.IsChecked == true;
+            _currentSpecialRule.OrganizeByMonth = OrganizeByMonthCheckBox.IsChecked == true;
+            _currentSpecialRule.UseCreationDate = UseCreationDateCheckBox.IsChecked == true;
+            _currentSpecialRule.Extensions = SpecialRuleExtensionsTextBox.Text.Trim();
+
+            // Update the special rule in database
+            _currentSpecialRule = await _databaseService.UpdateSpecialRuleAsync(_currentSpecialRule);
+
+            // Update classification service
+            _classificationService.SetSpecialRule(_currentSpecialRule);
+
+            MessageBox.Show(
+                "Special rule settings have been saved and applied.",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+
+            // Refresh scan if a folder is selected
+            if (!string.IsNullOrWhiteSpace(FolderPathTextBox.Text) &&
+                Directory.Exists(FolderPathTextBox.Text))
+            {
+                await RefreshScanAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"Failed to save special rule settings.\n\n{ex.Message}",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
     }
 
@@ -159,6 +277,12 @@ public partial class MainWindow : Window
         _operations.Clear();
 
         StatusTextBlock.Text = "Scanning...";
+
+        // Update classification service with current special rule
+        if (_currentSpecialRule != null)
+        {
+            _classificationService.SetSpecialRule(_currentSpecialRule);
+        }
 
         var ignoredPaths =
             await _databaseService.GetIgnoredPathsAsync();

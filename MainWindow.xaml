@@ -93,23 +93,82 @@
                 Padding="12"
                 Margin="0,0,0,12">
 
-            <StackPanel Orientation="Horizontal">
+            <StackPanel>
 
-                <CheckBox x:Name="IncludeSubfoldersCheckBox"
-                          Content="Include Subfolders"
-                          IsChecked="True"
-                          Margin="0,0,24,0"/>
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox x:Name="IncludeSubfoldersCheckBox"
+                              Content="Include Subfolders"
+                              IsChecked="True"
+                              Margin="0,0,24,0"/>
 
-                <CheckBox x:Name="PreviewCheckBox"
-                          Content="Preview Changes Before Applying"
-                          IsChecked="True"
-                          IsEnabled="False"
-                          Margin="0,0,24,0"/>
+                    <CheckBox x:Name="PreviewCheckBox"
+                              Content="Preview Changes Before Applying"
+                              IsChecked="True"
+                              IsEnabled="False"
+                              Margin="0,0,24,0"/>
 
-                <CheckBox x:Name="NeverDeleteCheckBox"
-                          Content="Never Delete Anything"
-                          IsChecked="True"
-                          IsEnabled="False"/>
+                    <CheckBox x:Name="NeverDeleteCheckBox"
+                              Content="Never Delete Anything"
+                              IsChecked="True"
+                              IsEnabled="False"/>
+                </StackPanel>
+
+                <!-- Special Rules Section -->
+                <Border BorderBrush="#EEE"
+                        BorderThickness="0,1,0,0"
+                        Padding="0,12,0,0"
+                        Margin="0,12,0,0">
+
+                    <StackPanel>
+                        <TextBlock Text="Special Rules"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,8"/>
+
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox x:Name="OrganizeByYearCheckBox"
+                                      Content="Organize by Year"
+                                      IsChecked="False"
+                                      Margin="0,0,24,0"
+                                      Checked="OrganizeByYearCheckBox_Checked"
+                                      Unchecked="OrganizeByYearCheckBox_Unchecked"/>
+
+                            <CheckBox x:Name="OrganizeByMonthCheckBox"
+                                      Content="Organize by Month"
+                                      IsChecked="False"
+                                      IsEnabled="False"
+                                      Margin="0,0,24,0"
+                                      Checked="OrganizeByMonthCheckBox_Checked"
+                                      Unchecked="OrganizeByMonthCheckBox_Unchecked"/>
+
+                            <CheckBox x:Name="UseCreationDateCheckBox"
+                                      Content="Use Creation Date"
+                                      IsChecked="True"
+                                      Margin="0,0,24,0"
+                                      Checked="UseCreationDateCheckBox_Checked"
+                                      Unchecked="UseCreationDateCheckBox_Unchecked"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="0,8,0,0">
+                            <TextBlock Text="Apply to extensions:"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,8,0"/>
+
+                            <TextBox x:Name="SpecialRuleExtensionsTextBox"
+                                     Width="200"
+                                     Height="24"
+                                     VerticalContentAlignment="Center"
+                                     Text=""
+                                     ToolTip="Leave empty to apply to all files. Use commas, semicolons, or spaces to separate extensions (e.g., .jpg, .png, .gif)"/>
+
+                            <Button Content="Apply Special Rule"
+                                    Width="130"
+                                    Height="24"
+                                    Margin="8,0,0,0"
+                                    Click="ApplySpecialRuleButton_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
 
             </StackPanel>
         </Border>
