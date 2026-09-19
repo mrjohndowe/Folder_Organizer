@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using FolderOrganizer.Models;
+using static FolderOrganizer.IconAliases;
 
 namespace FolderOrganizer.Services;
 
@@ -19,38 +20,7 @@ public class FileIconService
 
     
 
-    private static readonly Dictionary<string, string> IconAliases =
-        new(StringComparer.OrdinalIgnoreCase)
-        {
-            ["mdb"] = "access",
-            ["accdb"] = "access",
 
-            ["as"] = "actionscript",
-
-            ["ai"] = "ai",
-
-            ["afdesign"] = "affinitydesigner",
-            ["afphoto"] = "affinityphoto",
-            ["afpub"] = "affinitypublisher",
-
-            ["scpt"] = "applescript",
-            ["applescript"] = "applescript",
-
-            ["ino"] = "arduino",
-
-            ["asp"] = "asp",
-            ["aspx"] = "aspx",
-
-            ["asm"] = "assembly",
-
-            ["ahk"] = "ahk",
-
-            ["txt"] = "text",
-
-            ["jpg"] = "image",
-            ["jpeg"] = "image",
-            ["png"] = "image",
-        };
 
     public static string GetIconPath(string? filePath)
     {
@@ -88,7 +58,7 @@ public class FileIconService
         }
 
         var iconName =
-            IconAliases.TryGetValue(extension, out var alias)
+            ExtensionToIcon.TryGetValue(extension, out var alias)
                 ? alias
                 : extension;
 
