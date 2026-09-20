@@ -108,7 +108,7 @@ namespace FolderOrganizer.Views
                 await RunStartupSequence();
 
                 // Minimum splash-screen display time.
-                const int minimumSplashTime = 15000;
+                const int minimumSplashTime = 8000;
 
                 int elapsed =
                     (int)(DateTime.UtcNow - splashStarted)
@@ -187,13 +187,28 @@ namespace FolderOrganizer.Views
         }
 
         private async Task SetProgress(
-            int percentage,
+            int targetPercentage,
             string status)
         {
             StatusText.Text = status;
-            StartupProgress.Value = percentage;
-            PercentageText.Text = $"{percentage}%";
 
+            int currentPercentage =
+                (int)StartupProgress.Value;
+
+            while (currentPercentage < targetPercentage)
+            {
+                currentPercentage++;
+
+                StartupProgress.Value =
+                    currentPercentage;
+
+                PercentageText.Text =
+                    $"{currentPercentage}%";
+
+                await Task.Delay(350);
+            }
+
+            // Give the user a moment to read the status.
             await Task.Delay(350);
         }
 
