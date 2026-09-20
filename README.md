@@ -119,47 +119,244 @@ The project follows a typical structure for a C# WPF application, with organized
 
 ```
 Folder_Organizer/
-├── FolderOrganizer.sln            # Solution file
-├── FolderOrganizer.csproj         # Project file
+├── Assets
+│   ├── {ALL_ICONS}.svg
+├── bin
+│   ├── Debug
+│   │   └── net8.0-windows
+│   │       ├── Database
+│   │       │   └── folder-organizer.db
+│   │       ├── runtimes
+│   │       │   ├── browser-wasm
+│   │       │   │   └── nativeassets
+│   │       │   │       └── net8.0
+│   │       │   │           └── e_sqlite3.a
+│   │       │   ├── linux-arm
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.so
+│   │       │   ├── linux-arm64
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.so
+│   │       │   ├── linux-armel
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.so
+│   │       │   ├── linux-mips64
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.so
+│   │       │   ├── linux-musl-arm
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.so
+│   │       │   ├── linux-musl-arm64
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.so
+│   │       │   ├── linux-musl-riscv64
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.so
+│   │       │   ├── linux-musl-s390x
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.so
+│   │       │   ├── linux-musl-x64
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.so
+│   │       │   ├── linux-ppc64le
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.so
+│   │       │   ├── linux-riscv64
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.so
+│   │       │   ├── linux-s390x
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.so
+│   │       │   ├── linux-x64
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.so
+│   │       │   ├── linux-x86
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.so
+│   │       │   ├── maccatalyst-arm64
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.dylib
+│   │       │   ├── maccatalyst-x64
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.dylib
+│   │       │   ├── osx-arm64
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.dylib
+│   │       │   ├── osx-x64
+│   │       │   │   └── native
+│   │       │   │       └── libe_sqlite3.dylib
+│   │       │   ├── win-arm64
+│   │       │   │   └── native
+│   │       │   │       └── e_sqlite3.dll
+│   │       │   ├── win-x64
+│   │       │   │   └── native
+│   │       │   │       └── e_sqlite3.dll
+│   │       │   └── win-x86
+│   │       │       └── native
+│   │       │           └── e_sqlite3.dll
+│   │       ├── FolderOrganizer.deps.json
+│   │       ├── FolderOrganizer.dll
+│   │       ├── FolderOrganizer.exe
+│   │       ├── FolderOrganizer.pdb
+│   │       ├── FolderOrganizer.runtimeconfig.json
+│   │       ├── Microsoft.Data.Sqlite.dll
+│   │       ├── SharpVectors.Converters.Wpf.dll
+│   │       ├── SharpVectors.Core.dll
+│   │       ├── SharpVectors.Css.dll
+│   │       ├── SharpVectors.Dom.dll
+│   │       ├── SharpVectors.Model.dll
+│   │       ├── SharpVectors.Rendering.Wpf.dll
+│   │       ├── SharpVectors.Runtime.Wpf.dll
+│   │       ├── SQLitePCLRaw.batteries_v2.dll
+│   │       ├── SQLitePCLRaw.core.dll
+│   │       └── SQLitePCLRaw.provider.e_sqlite3.dll
+│   └── Release
+│       └── net8.0-windows
+├── Database
+│   └── folder-organizer.db
+├── FolderOrganizer
+├── Models
+│   ├── CustomRule.cs
+│   ├── MoveHistoryEntry.cs
+│   ├── MoveOperation.cs
+│   ├── OrganizationRun.cs
+│   └── SpecialRule.cs
+├── obj
+│   ├── Debug
+│   │   └── net8.0-windows
+│   │       ├── Organizer
+│   │       │   └── Views
+│   │       ├── ref
+│   │       │   └── FolderOrganizer.dll
+│   │       ├── refint
+│   │       │   └── FolderOrganizer.dll
+│   │       ├── App.baml
+│   │       ├── App.g.cs
+│   │       ├── App.g.i.cs
+│   │       ├── apphost.exe
+│   │       ├── ettingsWindow.baml
+│   │       ├── ettingsWindow.g.cs
+│   │       ├── FolderOr.213B46C2.Up2Date
+│   │       ├── FolderOrganizer.AssemblyInfo.cs
+│   │       ├── FolderOrganizer.AssemblyInfoInputs.cache
+│   │       ├── FolderOrganizer.assets.cache
+│   │       ├── FolderOrganizer.csproj.AssemblyReference.cache
+│   │       ├── FolderOrganizer.csproj.CoreCompileInputs.cache
+│   │       ├── FolderOrganizer.csproj.FileListAbsolute.txt
+│   │       ├── FolderOrganizer.dll
+│   │       ├── FolderOrganizer.g.resources
+│   │       ├── FolderOrganizer.GeneratedMSBuildEditorConfig.editorconfig
+│   │       ├── FolderOrganizer.genruntimeconfig.cache
+│   │       ├── FolderOrganizer.GlobalUsings.g.cs
+│   │       ├── FolderOrganizer.pdb
+│   │       ├── FolderOrganizer.sourcelink.json
+│   │       ├── FolderOrganizer_MarkupCompile.cache
+│   │       ├── HistoryWindow.baml
+│   │       ├── HistoryWindow.g.cs
+│   │       ├── HistoryWindow.g.i.cs
+│   │       ├── MainWindow.baml
+│   │       ├── MainWindow.g.cs
+│   │       ├── MainWindow.g.i.cs
+│   │       ├── SettingsWindow.baml
+│   │       ├── SettingsWindow.g.cs
+│   │       ├── SettingsWindow.g.i.cs
+│   │       ├── SplashWindow.baml
+│   │       ├── SplashWindow.g.cs
+│   │       └── SplashWindow.g.i.cs
+│   ├── Release
+│   │   └── net8.0-windows
+│   │       ├── Organizer
+│   │       │   └── Views
+│   │       ├── ref
+│   │       ├── refint
+│   │       ├── App.baml
+│   │       ├── App.g.cs
+│   │       ├── App.g.i.cs
+│   │       ├── ettingsWindow.baml
+│   │       ├── ettingsWindow.g.cs
+│   │       ├── FolderOrganizer.AssemblyInfo.cs
+│   │       ├── FolderOrganizer.AssemblyInfoInputs.cache
+│   │       ├── FolderOrganizer.assets.cache
+│   │       ├── FolderOrganizer.csproj.AssemblyReference.cache
+│   │       ├── FolderOrganizer.GeneratedMSBuildEditorConfig.editorconfig
+│   │       ├── FolderOrganizer.GlobalUsings.g.cs
+│   │       ├── FolderOrganizer_MarkupCompile.cache
+│   │       ├── HistoryWindow.baml
+│   │       ├── HistoryWindow.g.cs
+│   │       ├── HistoryWindow.g.i.cs
+│   │       ├── MainWindow.baml
+│   │       ├── MainWindow.g.cs
+│   │       ├── MainWindow.g.i.cs
+│   │       ├── SettingsWindow.baml
+│   │       ├── SettingsWindow.g.cs
+│   │       ├── SettingsWindow.g.i.cs
+│   │       ├── SplashWindow.baml
+│   │       ├── SplashWindow.g.cs
+│   │       └── SplashWindow.g.i.cs
+│   ├── FolderOrganizer.csproj.nuget.dgspec.json
+│   ├── FolderOrganizer.csproj.nuget.g.props
+│   ├── FolderOrganizer.csproj.nuget.g.targets
+│   ├── project.assets.json
+│   └── project.nuget.cache
+├── Organizer
+│   ├── Database
+│   │   └── organizer_database.sqlite
+│   ├── Helpers
+│   │   ├── FileIconHelper.cs
+│   │   └── PathHelper.cs
+│   ├── Models
+│   │   ├── HistoryEntry.cs
+│   │   ├── IgnoreRule.cs
+│   │   ├── MoveOperation.cs
+│   │   ├── OrganizationRule.cs
+│   │   └── ScanItem.cs
+│   ├── Services
+│   │   ├── DatabaseService.cs
+│   │   ├── FileClassifier.cs
+│   │   ├── FileMoveService.cs
+│   │   ├── FileScanner.cs
+│   │   ├── HistoryService.cs
+│   │   ├── IgnoreService.cs
+│   │   └── OrganizationPlanner.cs
+│   ├── ViewModels
+│   │   ├── HistoryViewModel.cs
+│   │   ├── MainViewModel.cs
+│   │   ├── PreviewViewModel.cs
+│   │   └── SettingsViewModel.cs
+│   ├── Views
+│   │   ├── HistoryWindow.xaml
+│   │   ├── MainWindow.xaml
+│   │   ├── PreviewWindow.xaml
+│   │   └── SettingsWindow.xaml
+│   ├── App.xaml
+│   └── App.xaml.cs
+├── Services
+│   ├── ClassificationService.cs
+│   ├── DatabaseService.cs
+│   ├── DestinationService.cs
+│   ├── FileIconService.cs
+│   ├── FileMoveService.cs
+│   ├── ScanService.cs
+│   └── ThemeService.cs
+├── app.manifest
 ├── App.xaml
 ├── App.xaml.cs
-├── MainWindow.xaml              # Main application window
-├── MainWindow.xaml.cs           # Main window code-behind
-├── Models/
-│   ├── MoveOperation.cs       # Represents a file move operation
-│   ├── HistoryEntry.cs        # Represents an entry in the history log
-│   ├── IgnoreRule.cs          # Defines a rule to ignore files
-│   └── OrganizationRule.cs    # Defines a rule for organizing files
-├── Organizer/
-│   ├── App.xaml
-│   ├── App.xaml.cs
-│   ├── Database/
-│   │   └── organizer_database.sqlite # SQLite database file
-│   ├── Helpers/
-│   │   ├── FileIconHelper.cs    # Utility for file icons
-│   │   └── PathHelper.cs        # Utility for path operations
-│   ├── Services/
-│   │   ├── DatabaseService.cs     # Service for database interactions
-│   │   ├── FileClassifier.cs    # Classifies files
-│   │   ├── FileMoveService.cs     # Handles file moving logic
-│   │   ├── FileScanner.cs       # Scans directories for files
-│   │   ├── HistoryService.cs    # Service for managing history
-│   │   └── IgnoreService.cs     # Service for managing ignore rules
-│   ├── ViewModels/
-│   │   ├── HistoryViewModel.cs  # ViewModel for history view
-│   │   ├── MainViewModel.cs     # ViewModel for the main window
-│   │   ├── PreviewViewModel.cs  # ViewModel for previewing operations
-│   │   └── SettingsViewModel.cs # ViewModel for settings
-│   └── Views/
-│       ├── HistoryWindow.xaml   # UI for history
-│       ├── MainWindow.xaml    # UI for main window (possible duplicate)
-│       ├── PreviewWindow.xaml   # UI for previewing moves
-│       └── SettingsWindow.xaml  # UI for settings
-├── Services/
-│   ├── ClassificationService.cs # Another classification service? (Potential redundancy or specific function)
-│   └── ScanService.cs         # Another scanning service? (Potential redundancy or specific function)
-├── app.manifest                 # Application manifest
-└── LICENSE.txt                  # Project license file
+├── folder_tree.txt
+├── FolderOrganizer.csproj
+├── FolderOrganizer.sln
+├── generate_tree.py
+├── HistoryWindow.xaml
+├── HistoryWindow.xaml.cs
+├── IconAliases.cs
+├── icons.zip
+├── LICENSE.txt
+├── MainWindow.xaml
+├── MainWindow.xaml.cs
+├── README.md
+├── SettingsWindow.xaml
+├── SettingsWindow.xaml.cs
+├── SplashWindow.xaml
+└── SplashWindow.xaml.cs
 ```
 
 *Note: There appear to be some duplicate file paths (e.g.,* `App.xaml`*,* `App.xaml.cs`*,* `MainWindow.xaml`*) and potentially redundant service implementations (*`Services/` *vs.* `Organizer/Services/`*). This might indicate different parts of the application or a need for refactoring.*
