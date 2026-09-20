@@ -53,7 +53,7 @@ namespace FolderOrganizer.Views
             InitializeComponent();
 
             _quipTimer.Interval =
-                TimeSpan.FromMilliseconds(1200);
+                 TimeSpan.FromMilliseconds(2200);
 
             _quipTimer.Tick += QuipTimer_Tick;
 
@@ -108,7 +108,7 @@ namespace FolderOrganizer.Views
                 await RunStartupSequence();
 
                 // Minimum splash-screen display time.
-                const int minimumSplashTime = 8000;
+                const int minimumSplashTime = 15000;
 
                 int elapsed =
                     (int)(DateTime.UtcNow - splashStarted)
