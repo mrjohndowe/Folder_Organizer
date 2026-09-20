@@ -14,229 +14,218 @@
 
 	<Window.Resources>
 
+		<!-- Moving file animation -->
+		<Storyboard
+			x:Key="FileTransferStoryboard"
+			RepeatBehavior="Forever">
+
+			<!-- FILE 1 -->
+			<DoubleAnimationUsingKeyFrames
+				Storyboard.TargetName="File1Transform"
+				Storyboard.TargetProperty="X"
+				BeginTime="0:0:0">
+
+				<SplineDoubleKeyFrame
+					KeyTime="0:0:0"
+					Value="0"/>
+
+				<SplineDoubleKeyFrame
+					KeyTime="0:0:0.75"
+					Value="155"/>
+
+				<SplineDoubleKeyFrame
+					KeyTime="0:0:1.5"
+					Value="315"/>
+
+			</DoubleAnimationUsingKeyFrames>
+
+			<DoubleAnimationUsingKeyFrames
+				Storyboard.TargetName="File1Transform"
+				Storyboard.TargetProperty="Y"
+				BeginTime="0:0:0">
+
+				<SplineDoubleKeyFrame
+					KeyTime="0:0:0"
+					Value="0"/>
+
+				<SplineDoubleKeyFrame
+					KeyTime="0:0:0.75"
+					Value="-42"/>
+
+				<SplineDoubleKeyFrame
+					KeyTime="0:0:1.5"
+					Value="0"/>
+
+			</DoubleAnimationUsingKeyFrames>
+
+			<DoubleAnimationUsingKeyFrames
+				Storyboard.TargetName="MovingFile1"
+				Storyboard.TargetProperty="Opacity"
+				BeginTime="0:0:0">
+
+				<DiscreteDoubleKeyFrame
+					KeyTime="0:0:0"
+					Value="0"/>
+
+				<LinearDoubleKeyFrame
+					KeyTime="0:0:0.2"
+					Value="1"/>
+
+				<LinearDoubleKeyFrame
+					KeyTime="0:0:1.25"
+					Value="1"/>
+
+				<LinearDoubleKeyFrame
+					KeyTime="0:0:1.5"
+					Value="0"/>
+
+			</DoubleAnimationUsingKeyFrames>
+
+			<!-- FILE 2 -->
+			<DoubleAnimationUsingKeyFrames
+				Storyboard.TargetName="File2Transform"
+				Storyboard.TargetProperty="X"
+				BeginTime="0:0:0.65">
+
+				<SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+				<SplineDoubleKeyFrame KeyTime="0:0:0.75" Value="155"/>
+				<SplineDoubleKeyFrame KeyTime="0:0:1.5" Value="315"/>
+
+			</DoubleAnimationUsingKeyFrames>
+
+			<DoubleAnimationUsingKeyFrames
+				Storyboard.TargetName="File2Transform"
+				Storyboard.TargetProperty="Y"
+				BeginTime="0:0:0.65">
+
+				<SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+				<SplineDoubleKeyFrame KeyTime="0:0:0.75" Value="-55"/>
+				<SplineDoubleKeyFrame KeyTime="0:0:1.5" Value="0"/>
+
+			</DoubleAnimationUsingKeyFrames>
+
+			<DoubleAnimationUsingKeyFrames
+				Storyboard.TargetName="MovingFile2"
+				Storyboard.TargetProperty="Opacity"
+				BeginTime="0:0:0.65">
+
+				<DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+				<LinearDoubleKeyFrame KeyTime="0:0:0.2" Value="1"/>
+				<LinearDoubleKeyFrame KeyTime="0:0:1.25" Value="1"/>
+				<LinearDoubleKeyFrame KeyTime="0:0:1.5" Value="0"/>
+
+			</DoubleAnimationUsingKeyFrames>
+
+			<!-- FILE 3 -->
+			<DoubleAnimationUsingKeyFrames
+				Storyboard.TargetName="File3Transform"
+				Storyboard.TargetProperty="X"
+				BeginTime="0:0:1.3">
+
+				<SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+				<SplineDoubleKeyFrame KeyTime="0:0:0.75" Value="155"/>
+				<SplineDoubleKeyFrame KeyTime="0:0:1.5" Value="315"/>
+
+			</DoubleAnimationUsingKeyFrames>
+
+			<DoubleAnimationUsingKeyFrames
+				Storyboard.TargetName="File3Transform"
+				Storyboard.TargetProperty="Y"
+				BeginTime="0:0:1.3">
+
+				<SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+				<SplineDoubleKeyFrame KeyTime="0:0:0.75" Value="-36"/>
+				<SplineDoubleKeyFrame KeyTime="0:0:1.5" Value="0"/>
+
+			</DoubleAnimationUsingKeyFrames>
+
+			<DoubleAnimationUsingKeyFrames
+				Storyboard.TargetName="MovingFile3"
+				Storyboard.TargetProperty="Opacity"
+				BeginTime="0:0:1.3">
+
+				<DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+				<LinearDoubleKeyFrame KeyTime="0:0:0.2" Value="1"/>
+				<LinearDoubleKeyFrame KeyTime="0:0:1.25" Value="1"/>
+				<LinearDoubleKeyFrame KeyTime="0:0:1.5" Value="0"/>
+
+			</DoubleAnimationUsingKeyFrames>
+
+			<!-- FILE 4 -->
+			<DoubleAnimationUsingKeyFrames
+				Storyboard.TargetName="File4Transform"
+				Storyboard.TargetProperty="X"
+				BeginTime="0:0:1.95">
+
+				<SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+				<SplineDoubleKeyFrame KeyTime="0:0:0.75" Value="155"/>
+				<SplineDoubleKeyFrame KeyTime="0:0:1.5" Value="315"/>
+
+			</DoubleAnimationUsingKeyFrames>
+
+			<DoubleAnimationUsingKeyFrames
+				Storyboard.TargetName="File4Transform"
+				Storyboard.TargetProperty="Y"
+				BeginTime="0:0:1.95">
+
+				<SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+				<SplineDoubleKeyFrame KeyTime="0:0:0.75" Value="-48"/>
+				<SplineDoubleKeyFrame KeyTime="0:0:1.5" Value="0"/>
+
+			</DoubleAnimationUsingKeyFrames>
+
+			<DoubleAnimationUsingKeyFrames
+				Storyboard.TargetName="MovingFile4"
+				Storyboard.TargetProperty="Opacity"
+				BeginTime="0:0:1.95">
+
+				<DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+				<LinearDoubleKeyFrame KeyTime="0:0:0.2" Value="1"/>
+				<LinearDoubleKeyFrame KeyTime="0:0:1.25" Value="1"/>
+				<LinearDoubleKeyFrame KeyTime="0:0:1.5" Value="0"/>
+
+			</DoubleAnimationUsingKeyFrames>
+
+		</Storyboard>
+
+
 		<!-- Rounded ProgressBar -->
-		<Style x:Key="SplashProgressBarStyle"
-               TargetType="ProgressBar">
-
-			<Storyboard
-    x:Key="FileTransferStoryboard"
-    RepeatBehavior="Forever">
-
-				<!-- ===================== -->
-				<!-- FILE 1 -->
-				<!-- ===================== -->
-
-				<DoubleAnimationUsingKeyFrames
-					Storyboard.TargetName="File1Transform"
-					Storyboard.TargetProperty="X"
-					BeginTime="0:0:0">
-
-					<SplineDoubleKeyFrame
-						KeyTime="0:0:0"
-						Value="0"/>
-
-					<SplineDoubleKeyFrame
-						KeyTime="0:0:0.75"
-						Value="155"/>
-
-					<SplineDoubleKeyFrame
-						KeyTime="0:0:1.5"
-						Value="315"/>
-
-				</DoubleAnimationUsingKeyFrames>
-
-				<DoubleAnimationUsingKeyFrames
-					Storyboard.TargetName="File1Transform"
-					Storyboard.TargetProperty="Y"
-					BeginTime="0:0:0">
-
-					<SplineDoubleKeyFrame
-						KeyTime="0:0:0"
-						Value="0"/>
-
-					<SplineDoubleKeyFrame
-						KeyTime="0:0:0.75"
-						Value="-42"/>
-
-					<SplineDoubleKeyFrame
-						KeyTime="0:0:1.5"
-						Value="0"/>
-
-				</DoubleAnimationUsingKeyFrames>
-
-				<DoubleAnimationUsingKeyFrames
-					Storyboard.TargetName="MovingFile1"
-					Storyboard.TargetProperty="Opacity"
-					BeginTime="0:0:0">
-
-					<DiscreteDoubleKeyFrame
-						KeyTime="0:0:0"
-						Value="0"/>
-
-					<LinearDoubleKeyFrame
-						KeyTime="0:0:0.2"
-						Value="1"/>
-
-					<LinearDoubleKeyFrame
-						KeyTime="0:0:1.25"
-						Value="1"/>
-
-					<LinearDoubleKeyFrame
-						KeyTime="0:0:1.5"
-						Value="0"/>
-
-				</DoubleAnimationUsingKeyFrames>
-
-
-				<!-- ===================== -->
-				<!-- FILE 2 -->
-				<!-- ===================== -->
-
-				<DoubleAnimationUsingKeyFrames
-					Storyboard.TargetName="File2Transform"
-					Storyboard.TargetProperty="X"
-					BeginTime="0:0:0.65">
-
-					<SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
-					<SplineDoubleKeyFrame KeyTime="0:0:0.75" Value="155"/>
-					<SplineDoubleKeyFrame KeyTime="0:0:1.5" Value="315"/>
-
-				</DoubleAnimationUsingKeyFrames>
-
-				<DoubleAnimationUsingKeyFrames
-					Storyboard.TargetName="File2Transform"
-					Storyboard.TargetProperty="Y"
-					BeginTime="0:0:0.65">
-
-					<SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
-					<SplineDoubleKeyFrame KeyTime="0:0:0.75" Value="-55"/>
-					<SplineDoubleKeyFrame KeyTime="0:0:1.5" Value="0"/>
-
-				</DoubleAnimationUsingKeyFrames>
-
-				<DoubleAnimationUsingKeyFrames
-					Storyboard.TargetName="MovingFile2"
-					Storyboard.TargetProperty="Opacity"
-					BeginTime="0:0:0.65">
-
-					<DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
-					<LinearDoubleKeyFrame KeyTime="0:0:0.2" Value="1"/>
-					<LinearDoubleKeyFrame KeyTime="0:0:1.25" Value="1"/>
-					<LinearDoubleKeyFrame KeyTime="0:0:1.5" Value="0"/>
-
-				</DoubleAnimationUsingKeyFrames>
-
-
-				<!-- ===================== -->
-				<!-- FILE 3 -->
-				<!-- ===================== -->
-
-				<DoubleAnimationUsingKeyFrames
-					Storyboard.TargetName="File3Transform"
-					Storyboard.TargetProperty="X"
-					BeginTime="0:0:1.3">
-
-					<SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
-					<SplineDoubleKeyFrame KeyTime="0:0:0.75" Value="155"/>
-					<SplineDoubleKeyFrame KeyTime="0:0:1.5" Value="315"/>
-
-				</DoubleAnimationUsingKeyFrames>
-
-				<DoubleAnimationUsingKeyFrames
-					Storyboard.TargetName="File3Transform"
-					Storyboard.TargetProperty="Y"
-					BeginTime="0:0:1.3">
-
-					<SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
-					<SplineDoubleKeyFrame KeyTime="0:0:0.75" Value="-36"/>
-					<SplineDoubleKeyFrame KeyTime="0:0:1.5" Value="0"/>
-
-				</DoubleAnimationUsingKeyFrames>
-
-				<DoubleAnimationUsingKeyFrames
-					Storyboard.TargetName="MovingFile3"
-					Storyboard.TargetProperty="Opacity"
-					BeginTime="0:0:1.3">
-
-					<DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
-					<LinearDoubleKeyFrame KeyTime="0:0:0.2" Value="1"/>
-					<LinearDoubleKeyFrame KeyTime="0:0:1.25" Value="1"/>
-					<LinearDoubleKeyFrame KeyTime="0:0:1.5" Value="0"/>
-
-				</DoubleAnimationUsingKeyFrames>
-
-
-				<!-- ===================== -->
-				<!-- FILE 4 -->
-				<!-- ===================== -->
-
-				<DoubleAnimationUsingKeyFrames
-					Storyboard.TargetName="File4Transform"
-					Storyboard.TargetProperty="X"
-					BeginTime="0:0:1.95">
-
-					<SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
-					<SplineDoubleKeyFrame KeyTime="0:0:0.75" Value="155"/>
-					<SplineDoubleKeyFrame KeyTime="0:0:1.5" Value="315"/>
-
-				</DoubleAnimationUsingKeyFrames>
-
-				<DoubleAnimationUsingKeyFrames
-					Storyboard.TargetName="File4Transform"
-					Storyboard.TargetProperty="Y"
-					BeginTime="0:0:1.95">
-
-					<SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
-					<SplineDoubleKeyFrame KeyTime="0:0:0.75" Value="-48"/>
-					<SplineDoubleKeyFrame KeyTime="0:0:1.5" Value="0"/>
-
-				</DoubleAnimationUsingKeyFrames>
-
-				<DoubleAnimationUsingKeyFrames
-					Storyboard.TargetName="MovingFile4"
-					Storyboard.TargetProperty="Opacity"
-					BeginTime="0:0:1.95">
-
-					<DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
-					<LinearDoubleKeyFrame KeyTime="0:0:0.2" Value="1"/>
-					<LinearDoubleKeyFrame KeyTime="0:0:1.25" Value="1"/>
-					<LinearDoubleKeyFrame KeyTime="0:0:1.5" Value="0"/>
-
-				</DoubleAnimationUsingKeyFrames>
-
-			</Storyboard>
+		<Style
+			x:Key="SplashProgressBarStyle"
+			TargetType="ProgressBar">
 
 			<Setter Property="Height"
-                    Value="12"/>
+					Value="12"/>
 
 			<Setter Property="Background"
-                    Value="#292D35"/>
+					Value="#292D35"/>
 
 			<Setter Property="Foreground"
-                    Value="#00A8D8"/>
+					Value="#00A8D8"/>
 
 			<Setter Property="BorderThickness"
-                    Value="0"/>
+					Value="0"/>
 
 			<Setter Property="Template">
+
 				<Setter.Value>
 
 					<ControlTemplate TargetType="ProgressBar">
 
 						<Grid>
 
-							<!-- Track -->
-							<Border Background="{TemplateBinding Background}"
-                                    CornerRadius="6"/>
+							<Border
+								Background="{TemplateBinding Background}"
+								CornerRadius="6"/>
 
-							<!-- Progress -->
-							<Grid x:Name="PART_Track"
-                                  Margin="0">
+							<Grid
+								x:Name="PART_Track">
 
-								<Border x:Name="PART_Indicator"
-                                        HorizontalAlignment="Left"
-                                        CornerRadius="6"
-                                        Background="{TemplateBinding Foreground}"/>
+								<Border
+									x:Name="PART_Indicator"
+									HorizontalAlignment="Left"
+									CornerRadius="6"
+									Background="{TemplateBinding Foreground}"/>
 
 							</Grid>
 
@@ -245,24 +234,28 @@
 					</ControlTemplate>
 
 				</Setter.Value>
+
 			</Setter>
 
 		</Style>
 
 	</Window.Resources>
 
-	<Border Background="#17191F"
-            BorderBrush="#2C3038"
-            BorderThickness="1"
-            CornerRadius="20"
-            Padding="38">
+	<Border
+		Background="#17191F"
+		BorderBrush="#2C3038"
+		BorderThickness="1"
+		CornerRadius="20"
+		Padding="38">
 
 		<Border.Effect>
-			<DropShadowEffect BlurRadius="30"
-                              ShadowDepth="0"
-                              Opacity="0.45"/>
+			<DropShadowEffect
+				BlurRadius="30"
+				ShadowDepth="0"
+				Opacity="0.45"/>
 		</Border.Effect>
 
+		<!-- Border may only contain ONE child -->
 		<Grid>
 
 			<Grid.RowDefinitions>
@@ -273,52 +266,56 @@
 				<RowDefinition Height="Auto"/>
 			</Grid.RowDefinitions>
 
+
 			<!-- App Icon -->
-			<Border Grid.Row="0"
-                    Width="82"
-                    Height="82"
-                    Background="#252932"
-                    CornerRadius="20"
-                    HorizontalAlignment="Center">
+			<Border
+				Grid.Row="0"
+				Width="82"
+				Height="82"
+				Background="#252932"
+				CornerRadius="20"
+				HorizontalAlignment="Center">
 
 				<Border.Effect>
-					<DropShadowEffect BlurRadius="18"
-                                      ShadowDepth="3"
-                                      Opacity="0.25"/>
+					<DropShadowEffect
+						BlurRadius="18"
+						ShadowDepth="3"
+						Opacity="0.25"/>
 				</Border.Effect>
 
-				<Grid>
-
-					<TextBlock Text="📁"
-                               FontSize="44"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-
-				</Grid>
+				<TextBlock
+					Text="📁"
+					FontSize="44"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center"/>
 
 			</Border>
 
+
 			<!-- Branding -->
-			<StackPanel Grid.Row="1"
-                        Margin="0,18,0,0"
-                        HorizontalAlignment="Center">
+			<StackPanel
+				Grid.Row="1"
+				Margin="0,18,0,0"
+				HorizontalAlignment="Center">
 
-				<TextBlock Text="Folder Organizer"
-                           Foreground="#FFFFFF"
-                           FontSize="28"
-                           FontWeight="SemiBold"
-                           HorizontalAlignment="Center"/>
+				<TextBlock
+					Text="Folder Organizer"
+					Foreground="#FFFFFF"
+					FontSize="28"
+					FontWeight="SemiBold"
+					HorizontalAlignment="Center"/>
 
-				<TextBlock Text="Scanning smarter. Moving safer."
-                           Foreground="#949AA5"
-                           FontSize="13"
-                           Margin="0,5,0,0"
-                           HorizontalAlignment="Center"/>
+				<TextBlock
+					Text="Scanning smarter. Moving safer."
+					Foreground="#949AA5"
+					FontSize="13"
+					Margin="0,5,0,0"
+					HorizontalAlignment="Center"/>
 
 			</StackPanel>
 
-			<!-- File Transfer Animation Area -->
-			<!-- File Transfer Animation Area -->
+
+			<!-- File Transfer Animation -->
 			<Canvas
 				x:Name="TransferCanvas"
 				Grid.Row="2"
@@ -329,7 +326,7 @@
 				VerticalAlignment="Center"
 				ClipToBounds="False">
 
-				<!-- Subtle transfer path -->
+				<!-- Transfer path -->
 				<Line
 					Panel.ZIndex="0"
 					X1="110"
@@ -341,11 +338,8 @@
 					StrokeDashArray="4,5"
 					Opacity="0.7"/>
 
-				<!-- ========================= -->
-				<!-- MOVING FILE ICONS -->
-				<!-- ========================= -->
 
-				<!-- File -->
+				<!-- FILE 1 -->
 				<svgc:SvgViewbox
 					x:Name="MovingFile1"
 					Panel.ZIndex="5"
@@ -358,12 +352,14 @@
 					Source="pack://application:,,,/Assets/file.svg">
 
 					<svgc:SvgViewbox.RenderTransform>
-						<TranslateTransform x:Name="File1Transform"/>
+						<TranslateTransform
+							x:Name="File1Transform"/>
 					</svgc:SvgViewbox.RenderTransform>
 
 				</svgc:SvgViewbox>
 
-				<!-- Image -->
+
+				<!-- FILE 2 -->
 				<svgc:SvgViewbox
 					x:Name="MovingFile2"
 					Panel.ZIndex="5"
@@ -376,12 +372,14 @@
 					Source="pack://application:,,,/Assets/image.svg">
 
 					<svgc:SvgViewbox.RenderTransform>
-						<TranslateTransform x:Name="File2Transform"/>
+						<TranslateTransform
+							x:Name="File2Transform"/>
 					</svgc:SvgViewbox.RenderTransform>
 
 				</svgc:SvgViewbox>
 
-				<!-- Music -->
+
+				<!-- FILE 3 -->
 				<svgc:SvgViewbox
 					x:Name="MovingFile3"
 					Panel.ZIndex="5"
@@ -394,12 +392,14 @@
 					Source="pack://application:,,,/Assets/music.svg">
 
 					<svgc:SvgViewbox.RenderTransform>
-						<TranslateTransform x:Name="File3Transform"/>
+						<TranslateTransform
+							x:Name="File3Transform"/>
 					</svgc:SvgViewbox.RenderTransform>
 
 				</svgc:SvgViewbox>
 
-				<!-- Archive -->
+
+				<!-- FILE 4 -->
 				<svgc:SvgViewbox
 					x:Name="MovingFile4"
 					Panel.ZIndex="5"
@@ -412,14 +412,12 @@
 					Source="pack://application:,,,/Assets/zip.svg">
 
 					<svgc:SvgViewbox.RenderTransform>
-						<TranslateTransform x:Name="File4Transform"/>
+						<TranslateTransform
+							x:Name="File4Transform"/>
 					</svgc:SvgViewbox.RenderTransform>
 
 				</svgc:SvgViewbox>
 
-				<!-- ========================= -->
-				<!-- FOLDERS -->
-				<!-- ========================= -->
 
 				<!-- Source Folder -->
 				<svgc:SvgViewbox
@@ -431,6 +429,7 @@
 					Height="80"
 					Stretch="Uniform"
 					Source="pack://application:,,,/Assets/folder.svg"/>
+
 
 				<!-- Destination Folder -->
 				<svgc:SvgViewbox
@@ -445,55 +444,78 @@
 
 			</Canvas>
 
+
 			<!-- Loading Area -->
-			<Grid Grid.Row="3"
-                  Margin="12,28,12,0"
-                  VerticalAlignment="Center">
+			<Grid
+				Grid.Row="3"
+				Margin="12,20,12,0"
+				VerticalAlignment="Center">
 
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto"/>
 					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
 				</Grid.RowDefinitions>
 
-				<!-- Status -->
-				<Grid Grid.Row="0"
-                      Margin="0,0,0,9">
 
-					<TextBlock x:Name="StatusText"
-                               Text="Starting Folder Organizer..."
-                               Foreground="#CDD1D8"
-                               FontSize="13"
-                               HorizontalAlignment="Left"/>
+				<!-- Real startup status -->
+				<Grid
+					Grid.Row="0"
+					Margin="0,0,0,9">
 
-					<TextBlock x:Name="PercentageText"
-                               Text="0%"
-                               Foreground="#CDD1D8"
-                               FontSize="13"
-                               FontWeight="SemiBold"
-                               HorizontalAlignment="Right"/>
+					<TextBlock
+						x:Name="StatusText"
+						Text="Starting Folder Organizer..."
+						Foreground="#CDD1D8"
+						FontSize="13"
+						HorizontalAlignment="Left"/>
+
+					<TextBlock
+						x:Name="PercentageText"
+						Text="0%"
+						Foreground="#CDD1D8"
+						FontSize="13"
+						FontWeight="SemiBold"
+						HorizontalAlignment="Right"/>
 
 				</Grid>
 
-				<!-- Progress -->
-				<ProgressBar x:Name="StartupProgress"
-                             Grid.Row="1"
-                             Minimum="0"
-                             Maximum="100"
-                             Value="0"
-                             Style="{StaticResource SplashProgressBarStyle}"/>
+
+				<!-- ONE progress bar -->
+				<ProgressBar
+					x:Name="StartupProgress"
+					Grid.Row="1"
+					Minimum="0"
+					Maximum="100"
+					Value="0"
+					Style="{StaticResource SplashProgressBarStyle}"/>
+
+
+				<!-- Rotating joke -->
+				<TextBlock
+					x:Name="QuipText"
+					Grid.Row="2"
+					Text="Pretending to do important computer things..."
+					Foreground="#737A86"
+					FontSize="11"
+					FontStyle="Italic"
+					TextAlignment="Center"
+					HorizontalAlignment="Center"
+					Margin="0,10,0,0"/>
 
 			</Grid>
 
+
 			<!-- Footer -->
-			<TextBlock Grid.Row="4"
-                       Text="Folder Organizer  •  v1.0"
-                       Foreground="#5F6570"
-                       FontSize="10"
-                       HorizontalAlignment="Center"
-                       Margin="0,24,0,0"/>
+			<TextBlock
+				Grid.Row="4"
+				Text="Folder Organizer  •  v1.0"
+				Foreground="#5F6570"
+				FontSize="10"
+				HorizontalAlignment="Center"
+				Margin="0,24,0,0"/>
 
 		</Grid>
 
 	</Border>
-
 </Window>
