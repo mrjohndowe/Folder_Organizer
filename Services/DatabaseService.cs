@@ -513,7 +513,7 @@ public class DatabaseService
                 Priority = $priority,
                 IsEnabled = $isEnabled,
                 UpdatedAt = $updatedAt,
-                Action = $action,
+                Action = $action
 
             WHERE Id = $id;
             """;
@@ -552,14 +552,16 @@ public class DatabaseService
 
     public async Task<List<CustomRule>> GetCustomRulesAsync()
     {
-        var rules = new List<CustomRule>();
+        var rules =
+            new List<CustomRule>();
 
         await using var connection =
             new SqliteConnection(_connectionString);
 
         await connection.OpenAsync();
 
-        var command = connection.CreateCommand();
+        var command =
+            connection.CreateCommand();
 
         command.CommandText =
         """
@@ -569,45 +571,55 @@ public class DatabaseService
             Extensions,
             Priority,
             IsEnabled,
+            CreatedAt,
+            UpdatedAt,
             Action
         FROM CustomRules
-
         ORDER BY Priority ASC, Id ASC;
-        """;
+    """;
 
         await using var reader =
             await command.ExecuteReaderAsync();
 
         while (await reader.ReadAsync())
         {
-            rules.Add(new CustomRule
-            {
-                Id = reader.GetInt64(0),
+            rules.Add(
+                new CustomRule
+                {
+                    Id =
+                        reader.GetInt64(
+                            reader.GetOrdinal("Id")),
 
-                FolderName =
-                    reader.GetString(1),
+                    FolderName =
+                        reader.GetString(
+                            reader.GetOrdinal("FolderName")),
 
-                Extensions =
-                    reader.GetString(2),
+                    Extensions =
+                        reader.GetString(
+                            reader.GetOrdinal("Extensions")),
 
-                Priority =
-                    reader.GetInt32(3),
+                    Priority =
+                        reader.GetInt32(
+                            reader.GetOrdinal("Priority")),
 
-                IsEnabled =
-                    reader.GetInt32(4) != 0,
+                    IsEnabled =
+                        reader.GetInt32(
+                            reader.GetOrdinal("IsEnabled")) != 0,
 
-                CreatedAt =
-                    DateTime.Parse(
-                        reader.GetString(5)),
+                    CreatedAt =
+                        DateTime.Parse(
+                            reader.GetString(
+                                reader.GetOrdinal("CreatedAt"))),
 
-                UpdatedAt =
-                    DateTime.Parse(
-                        reader.GetString(6)),
+                    UpdatedAt =
+                        DateTime.Parse(
+                            reader.GetString(
+                                reader.GetOrdinal("UpdatedAt"))),
 
-                Action =
-                    (RuleAction)reader.GetInt32(
-                        reader.GetOrdinal("Action"))
-            });
+                    Action =
+                        (RuleAction)reader.GetInt32(
+                            reader.GetOrdinal("Action"))
+                });
         }
 
         return rules;
@@ -693,23 +705,23 @@ public class DatabaseService
 
         command.CommandText =
         """
-    SELECT
-        Id,
-        RunId,
-        SourcePath,
-        DestinationPath,
-        FinalDestinationPath,
-        FileType,
-        Status,
-        ErrorMessage,
-        CreatedAt
+            SELECT
+                Id,
+                RunId,
+                SourcePath,
+                DestinationPath,
+                FinalDestinationPath,
+                FileType,
+                Status,
+                ErrorMessage,
+                CreatedAt
 
-    FROM MoveHistory
+            FROM MoveHistory
 
-    WHERE RunId = $runId
+            WHERE RunId = $runId
 
-    ORDER BY Id;
-    """;
+            ORDER BY Id;
+        """;
 
         command.Parameters.AddWithValue(
             "$runId",
