@@ -175,6 +175,30 @@
 
 				</DataGridTemplateColumn>
 
+				<!-- Action -->
+				<DataGridTemplateColumn
+					Header="Action"
+					Width="105">
+
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+
+							<ComboBox
+								Width="90"
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center"
+								ItemsSource="{Binding DataContext.RuleActions,
+                    RelativeSource={RelativeSource AncestorType=Window}}"
+								SelectedItem="{Binding Action,
+                    Mode=TwoWay,
+                    UpdateSourceTrigger=PropertyChanged}"
+								SelectionChanged="RuleActionComboBox_SelectionChanged"/>
+
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+
+				</DataGridTemplateColumn>
+
 				<DataGridTemplateColumn
                         Header=""
                         Width="48"

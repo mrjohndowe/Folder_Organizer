@@ -52,7 +52,7 @@ namespace FolderOrganizer.Views
         {
             InitializeComponent();
 
-            _quipTimer.Interval = TimeSpan.FromMilliseconds(2200);
+            _quipTimer.Interval = TimeSpan.FromMilliseconds(3500);
             _quipTimer.Tick += QuipTimer_Tick;
 
             Loaded += SplashScreen_Loaded;

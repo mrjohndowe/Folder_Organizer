@@ -16,14 +16,20 @@ public partial class SettingsWindow : Window
 
     private Point _dragStartPoint;
 
+    public Array RuleActions { get; } =
+        Enum.GetValues(typeof(RuleAction));
+
     private CustomRule? _draggedRule;
 
     private bool _isLoading;
+
 
     public SettingsWindow(
         DatabaseService databaseService)
     {
         InitializeComponent();
+
+        DataContext = this;
 
         _databaseService = databaseService;
 
@@ -348,6 +354,49 @@ public partial class SettingsWindow : Window
         }
     }
 
+    private async void RuleActionComboBox_SelectionChanged(
+    object sender,
+    SelectionChangedEventArgs e)
+    {
+        if (_isLoading)
+        {
+            return;
+        }
+
+        if (sender is not ComboBox comboBox ||
+            comboBox.DataContext is not CustomRule rule)
+        {
+            return;
+        }
+
+        if (comboBox.SelectedItem is not RuleAction action)
+        {
+            return;
+        }
+
+        rule.Action = action;
+
+        try
+        {
+            await _databaseService.UpdateCustomRuleAsync(rule);
+
+            StatusTextBlock.Text =
+                $"Autosaved action: {rule.Action}";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"The rule action could not be saved.\n\n{ex.Message}",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+
+            StatusTextBlock.Text =
+                "Autosave failed.";
+
+            await LoadRulesAsync();
+        }
+    }
 
 
     private void RulesDataGrid_CellEditEnding(
