@@ -5,6 +5,7 @@ using FolderOrganizer.Models;
 using FolderOrganizer.Services;
 using Microsoft.Win32;
 using System.Windows.Controls;
+using System.Reflection;
 
 namespace FolderOrganizer;
 
@@ -22,6 +23,13 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+
+        var version = Assembly.GetExecutingAssembly().GetName().Version;
+
+        if (version != null)
+        {
+            TitleBarVersionText.Text = $"v{AppVersion.Current}";
+        }
 
         _classificationService = new ClassificationService();
         _scanService = new ScanService(_classificationService);

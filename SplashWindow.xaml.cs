@@ -5,6 +5,8 @@ using System.Windows;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using FolderOrganizer.Services;
+using System.Reflection;
+
 
 namespace FolderOrganizer.Views
 {
@@ -52,6 +54,14 @@ namespace FolderOrganizer.Views
         public SplashScreen()
         {
             InitializeComponent();
+
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+
+            if (version != null)
+            {
+                FooterVersionText.Text =
+                    FooterVersionText.Text = $"Folder Organizer  •  v{AppVersion.Current}";
+            }
 
             _quipTimer.Interval = TimeSpan.FromMilliseconds(3500);
             _quipTimer.Tick += QuipTimer_Tick;

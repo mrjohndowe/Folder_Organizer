@@ -31,15 +31,24 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel>
-                <TextBlock Text="Folder Organizer"
-                           FontSize="26"
-                           FontWeight="Bold"/>
+			<StackPanel
+                Orientation="Horizontal"
+                VerticalAlignment="Center">
 
-                <TextBlock Text="Scan, preview, then organize."
-                           Margin="0,4,0,0"
-                           Opacity="0.65"/>
-            </StackPanel>
+				<TextBlock
+					Text="Folder Organizer"
+					FontSize="26"
+					FontWeight="SemiBold" />
+
+				<TextBlock
+					x:Name="TitleBarVersionText"
+					Text=""
+					Foreground="#7A808A"
+					FontSize="11"
+					Margin="8,1,0,0"
+					VerticalAlignment="Center" />
+
+			</StackPanel>
 
 			<Button Grid.Column="1"
                 Content="⚙ Settings"
