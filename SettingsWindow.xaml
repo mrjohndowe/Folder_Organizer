@@ -175,24 +175,23 @@
 
 				</DataGridTemplateColumn>
 
-				<!-- Action -->
+				<!-- Remove -->
 				<DataGridTemplateColumn
-					Header="Action"
-					Width="105">
+					Header="Remove"
+					Width="80">
 
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 
-							<ComboBox
-								Width="90"
-								HorizontalAlignment="Center"
-								VerticalAlignment="Center"
-								ItemsSource="{Binding DataContext.RuleActions,
-                    RelativeSource={RelativeSource AncestorType=Window}}"
-								SelectedItem="{Binding Action,
+							<CheckBox
+								IsChecked="{Binding IsRemoval,
                     Mode=TwoWay,
                     UpdateSourceTrigger=PropertyChanged}"
-								SelectionChanged="RuleActionComboBox_SelectionChanged"/>
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center"
+								ToolTip="Move matching files to the 'Files to be removed' folder"
+								Checked="RemoveCheckBox_Changed"
+								Unchecked="RemoveCheckBox_Changed"/>
 
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>

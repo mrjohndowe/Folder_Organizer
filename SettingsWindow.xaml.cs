@@ -16,9 +16,6 @@ public partial class SettingsWindow : Window
 
     private Point _dragStartPoint;
 
-    public Array RuleActions { get; } =
-        Enum.GetValues(typeof(RuleAction));
-
     private CustomRule? _draggedRule;
 
     private bool _isLoading;
@@ -28,8 +25,6 @@ public partial class SettingsWindow : Window
         DatabaseService databaseService)
     {
         InitializeComponent();
-
-        DataContext = this;
 
         _databaseService = databaseService;
 
@@ -354,39 +349,37 @@ public partial class SettingsWindow : Window
         }
     }
 
-    private async void RuleActionComboBox_SelectionChanged(
+    private async void RemoveCheckBox_Changed(
     object sender,
-    SelectionChangedEventArgs e)
+    RoutedEventArgs e)
     {
         if (_isLoading)
         {
             return;
         }
 
-        if (sender is not ComboBox comboBox ||
-            comboBox.DataContext is not CustomRule rule)
+        if (sender is not CheckBox checkBox ||
+            checkBox.DataContext is not CustomRule rule)
         {
             return;
         }
 
-        if (comboBox.SelectedItem is not RuleAction action)
-        {
-            return;
-        }
-
-        rule.Action = action;
+        rule.IsRemoval =
+            checkBox.IsChecked == true;
 
         try
         {
             await _databaseService.UpdateCustomRuleAsync(rule);
 
             StatusTextBlock.Text =
-                $"Autosaved action: {rule.Action}";
+                rule.IsRemoval
+                    ? $"Marked for removal: {rule.FolderName}"
+                    : $"Set to move normally: {rule.FolderName}";
         }
         catch (Exception ex)
         {
             MessageBox.Show(
-                $"The rule action could not be saved.\n\n{ex.Message}",
+                $"The rule could not be saved.\n\n{ex.Message}",
                 "Folder Organizer",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
@@ -397,7 +390,6 @@ public partial class SettingsWindow : Window
             await LoadRulesAsync();
         }
     }
-
 
     private void RulesDataGrid_CellEditEnding(
     object sender,
