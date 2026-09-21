@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using FolderOrganizer.Services;
 
 namespace FolderOrganizer.Views
 {
@@ -105,6 +106,11 @@ namespace FolderOrganizer.Views
 
                 await RunStartupSequence();
 
+                if (Application.Current.Dispatcher.HasShutdownStarted)
+                {
+                    return;
+                }
+
                 // Keep the splash visible long enough for the
                 // animation and quips to actually be seen.
                 const int minimumSplashTime = 8000;
@@ -181,10 +187,23 @@ namespace FolderOrganizer.Views
             // Organizer rules initialization will go here.
 
             await SetProgress(
-                90,
+                85,
                 "Preparing workspace...");
 
             // Workspace initialization will go here.
+
+            await SetProgress(
+                92,
+                "Checking for updates...");
+
+            await UpdateService.CheckForUpdatesAsync();
+
+            // If the updater was launched, UpdateService shuts
+            // down the application. Do not continue startup.
+            if (Application.Current.Dispatcher.HasShutdownStarted)
+            {
+                return;
+            }
 
             await SetProgress(
                 100,

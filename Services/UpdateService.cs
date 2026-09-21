@@ -17,7 +17,7 @@ public static class UpdateService
         "Folder_Organizer";
 
     private const string InstallerAssetName =
-        "FolderOrganizerSetup.exe";
+        "FolderOrganizer-Setup.exe";
 
     private static readonly HttpClient HttpClient =
         new();
