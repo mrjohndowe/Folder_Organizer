@@ -15,4 +15,6 @@ public class CustomRule
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }
+
+    public RuleAction Action { get; set; } = RuleAction.Move;
 }
