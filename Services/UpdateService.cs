@@ -188,8 +188,8 @@ public static class UpdateService
     }
 
     private static async Task DownloadAndInstallAsync(
-        string installerUrl,
-        Version version)
+    string installerUrl,
+    Version version)
     {
         string updateFolder =
             Path.Combine(
@@ -206,24 +206,28 @@ public static class UpdateService
                 updateFolder,
                 InstallerAssetName);
 
-        using var response =
+        using (var response =
             await HttpClient.GetAsync(
                 installerUrl,
-                HttpCompletionOption
-                    .ResponseHeadersRead);
+                HttpCompletionOption.ResponseHeadersRead))
+        {
+            response.EnsureSuccessStatusCode();
 
-        response.EnsureSuccessStatusCode();
-
-        await using Stream input =
-            await response.Content
-                .ReadAsStreamAsync();
-
-        await using FileStream output =
-            File.Create(installerPath);
-
-        await input.CopyToAsync(output);
-
-        await output.FlushAsync();
+            await using (Stream input =
+                await response.Content.ReadAsStreamAsync())
+            {
+                await using (FileStream output =
+                    new FileStream(
+                        installerPath,
+                        FileMode.Create,
+                        FileAccess.Write,
+                        FileShare.None))
+                {
+                    await input.CopyToAsync(output);
+                    await output.FlushAsync();
+                }
+            }
+        }
 
         var startInfo =
             new ProcessStartInfo
@@ -241,7 +245,13 @@ public static class UpdateService
                     "/CLOSEAPPLICATIONS"
             };
 
-        Process.Start(startInfo);
+        Process? process = Process.Start(startInfo);
+
+        if (process == null)
+        {
+            throw new InvalidOperationException(
+                "The installer could not be started.");
+        }
 
         Application.Current.Shutdown();
     }
