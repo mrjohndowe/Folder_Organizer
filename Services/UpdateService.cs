@@ -63,6 +63,11 @@ public static class UpdateService
                     remoteVersionText,
                     out Version? remoteVersion))
             {
+                MessageBox.Show(
+                    $"Could not parse remote version: {tagName}",
+                    "Update Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
                 return;
             }
 
@@ -92,7 +97,9 @@ public static class UpdateService
             {
                 MessageBox.Show(
                     $"Folder Organizer {remoteVersion} is available, " +
-                    "but no installer was found in the GitHub release.",
+                    "but no installer was found in the GitHub release.\n\n" +
+                    "Please download manually from:\n" +
+                    $"https://github.com/{GitHubOwner}/{GitHubRepository}/releases/latest",
                     "Update Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
@@ -100,15 +107,37 @@ public static class UpdateService
                 return;
             }
 
-            await DownloadAndInstallAsync(
-                installerUrl,
-                remoteVersion);
+            var result = MessageBox.Show(
+                $"Folder Organizer {remoteVersion} is available (current: {currentVersion}).\n\n" +
+                "Would you like to download and install the update?",
+                "Update Available",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                await DownloadAndInstallAsync(
+                    installerUrl,
+                    remoteVersion);
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            MessageBox.Show(
+                $"Could not connect to GitHub to check for updates.\n\n" +
+                $"Error: {ex.Message}\n\n" +
+                "Please check your internet connection or visit:\n" +
+                $"https://github.com/{GitHubOwner}/{GitHubRepository}/releases",
+                "Update Failed",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
         }
         catch (Exception ex)
         {
             MessageBox.Show(
-                $"Folder Organizer could not update automatically.\n\n" +
-                $"{ex.Message}",
+                $"Folder Organizer could not check for updates.\n\n" +
+                $"Error: {ex.Message}\n\n" +
+                "Stack trace:\n" + ex.StackTrace,
                 "Update Failed",
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
@@ -206,27 +235,71 @@ public static class UpdateService
                 updateFolder,
                 InstallerAssetName);
 
-        using (var response =
-            await HttpClient.GetAsync(
-                installerUrl,
-                HttpCompletionOption.ResponseHeadersRead))
+        try
         {
-            response.EnsureSuccessStatusCode();
-
-            await using (Stream input =
-                await response.Content.ReadAsStreamAsync())
+            // Download the installer
+            using (var response =
+                await HttpClient.GetAsync(
+                    installerUrl,
+                    HttpCompletionOption.ResponseHeadersRead))
             {
-                await using (FileStream output =
-                    new FileStream(
-                        installerPath,
-                        FileMode.Create,
-                        FileAccess.Write,
-                        FileShare.None))
+                response.EnsureSuccessStatusCode();
+
+                await using (Stream input =
+                    await response.Content.ReadAsStreamAsync())
                 {
-                    await input.CopyToAsync(output);
-                    await output.FlushAsync();
+                    await using (FileStream output =
+                        new FileStream(
+                            installerPath,
+                            FileMode.Create,
+                            FileAccess.Write,
+                            FileShare.None))
+                    {
+                        byte[] buffer = new byte[8192];
+                        int bytesRead;
+
+                        while ((bytesRead = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                        {
+                            await output.WriteAsync(buffer, 0, bytesRead);
+                        }
+
+                        await output.FlushAsync();
+                    }
                 }
             }
+
+            // Verify the installer was downloaded
+            if (!File.Exists(installerPath))
+            {
+                throw new InvalidOperationException(
+                    "Installer was not downloaded successfully.");
+            }
+
+            var fileInfo = new FileInfo(installerPath);
+            if (fileInfo.Length < 1024) // Less than 1KB is suspicious
+            {
+                throw new InvalidOperationException(
+                    $"Downloaded installer is too small ({fileInfo.Length} bytes). " +
+                    "It may not be a valid installer.");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Clean up failed download
+            try
+            {
+                if (File.Exists(installerPath))
+                {
+                    File.Delete(installerPath);
+                }
+            }
+            catch
+            {
+                // Ignore cleanup errors
+            }
+
+            throw new InvalidOperationException(
+                $"Failed to download installer: {ex.Message}", ex);
         }
 
         var startInfo =
@@ -240,7 +313,7 @@ public static class UpdateService
                 "/SUPPRESSMSGBOXES " +
                 "/NORESTART " +
                 "/CLOSEAPPLICATIONS"
-        };
+            };
 
         Process? process = Process.Start(startInfo);
 
@@ -251,5 +324,10 @@ public static class UpdateService
         }
 
         Application.Current.Shutdown();
+    }
+
+    public static async Task CheckForUpdatesManualAsync()
+    {
+        await CheckForUpdatesAsync(showUpToDateMessage: true);
     }
 }

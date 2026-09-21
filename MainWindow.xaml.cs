@@ -6,6 +6,7 @@ using FolderOrganizer.Services;
 using Microsoft.Win32;
 using System.Windows.Controls;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace FolderOrganizer;
 
@@ -69,6 +70,13 @@ public partial class MainWindow : Window
             };
 
         settingsWindow.ShowDialog();
+    }
+
+    private async void CheckUpdatesButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        await UpdateService.CheckForUpdatesManualAsync();
     }
 
     private async void RemoveIgnoreButton_Click(

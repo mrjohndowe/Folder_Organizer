@@ -50,10 +50,19 @@
 
 			</StackPanel>
 
-			<Button Grid.Column="1"
-                Content="⚙ Settings"
-                Padding="14,8"
-                Click="SettingsButton_Click"/>
+			<StackPanel Grid.Column="1"
+                        Orientation="Horizontal">
+
+				<Button Content="⚙ Settings"
+                        Padding="14,8"
+                        Margin="0,0,8,0"
+                        Click="SettingsButton_Click"/>
+
+				<Button Content="Check Updates"
+                        Padding="14,8"
+                        Click="CheckUpdatesButton_Click"/>
+
+			</StackPanel>
 
 
 
