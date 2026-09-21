@@ -138,7 +138,7 @@ public static class UpdateService
             .GetExecutingAssembly()
             .GetName()
             .Version
-            ?? new Version(0, 0, 0, 1);
+            ?? new Version(0, 1, 1, 0);
     }
 
     private static string? FindInstallerUrl(
