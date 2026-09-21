@@ -23,7 +23,7 @@ public static class UpdateService
         new();
 
     public static async Task CheckForUpdatesAsync(
-        bool showUpToDateMessage = false)
+    bool showUpToDateMessage = false)
     {
         try
         {
@@ -91,30 +91,12 @@ public static class UpdateService
                     installerUrl))
             {
                 MessageBox.Show(
-                    $"Version {remoteVersion} is available, " +
-                    "but the installer could not be found " +
-                    "in the GitHub release.",
-                    "Update Available",
+                    $"Folder Organizer {remoteVersion} is available, " +
+                    "but no installer was found in the GitHub release.",
+                    "Update Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
 
-                return;
-            }
-
-            MessageBoxResult result =
-                MessageBox.Show(
-                    $"Folder Organizer {remoteVersion} " +
-                    "is available.\n\n" +
-                    $"Installed version: {currentVersion}\n" +
-                    $"New version: {remoteVersion}\n\n" +
-                    "Download and install the update now?",
-                    "Update Available",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Information,
-                    MessageBoxResult.Yes);
-
-            if (result != MessageBoxResult.Yes)
-            {
                 return;
             }
 
@@ -124,15 +106,12 @@ public static class UpdateService
         }
         catch (Exception ex)
         {
-            if (showUpToDateMessage)
-            {
-                MessageBox.Show(
-                    $"Folder Organizer could not check " +
-                    $"for updates.\n\n{ex.Message}",
-                    "Update Check Failed",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-            }
+            MessageBox.Show(
+                $"Folder Organizer could not update automatically.\n\n" +
+                $"{ex.Message}",
+                "Update Failed",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
         }
     }
 
@@ -163,7 +142,7 @@ public static class UpdateService
     }
 
     private static string? FindInstallerUrl(
-        JsonElement root)
+    JsonElement root)
     {
         if (!root.TryGetProperty(
                 "assets",
@@ -171,6 +150,9 @@ public static class UpdateService
         {
             return null;
         }
+
+        string? fallbackInstallerUrl =
+            null;
 
         foreach (JsonElement asset
                  in assets.EnumerateArray())
@@ -180,21 +162,29 @@ public static class UpdateService
                     .GetString()
                 ?? string.Empty;
 
-            if (!string.Equals(
+            string? downloadUrl =
+                asset.GetProperty(
+                        "browser_download_url")
+                    .GetString();
+
+            if (string.Equals(
                     name,
                     InstallerAssetName,
                     StringComparison.OrdinalIgnoreCase))
             {
-                continue;
+                return downloadUrl;
             }
 
-            return asset
-                .GetProperty(
-                    "browser_download_url")
-                .GetString();
+            if (name.EndsWith(
+                    ".exe",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                fallbackInstallerUrl ??=
+                    downloadUrl;
+            }
         }
 
-        return null;
+        return fallbackInstallerUrl;
     }
 
     private static async Task DownloadAndInstallAsync(
