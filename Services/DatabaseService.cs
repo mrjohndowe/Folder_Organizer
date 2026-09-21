@@ -7,6 +7,9 @@ namespace FolderOrganizer.Services;
 
 public class DatabaseService
 {
+    public const string ApplicationVersionSettingKey =
+        "ApplicationVersion";
+
     private readonly string _databasePath;
     private readonly string _connectionString;
 
@@ -1057,6 +1060,25 @@ public class DatabaseService
         """;
 
         await command.ExecuteNonQueryAsync();
+
+        var versionCommand = connection.CreateCommand();
+
+        versionCommand.CommandText =
+        """
+            INSERT INTO AppSettings (SettingKey, SettingValue)
+            VALUES ($key, $value)
+            ON CONFLICT(SettingKey) DO NOTHING;
+        """;
+
+        versionCommand.Parameters.AddWithValue(
+            "$key",
+            ApplicationVersionSettingKey);
+        versionCommand.Parameters.AddWithValue(
+            "$value",
+            AppVersion.Current);
+
+        await versionCommand.ExecuteNonQueryAsync();
+
         await EnsureCustomRulesActionColumnAsync(
             connection);
     }
@@ -1188,6 +1210,12 @@ public class DatabaseService
 
         return result?.ToString();
     }
+
+    public Task<string?> GetApplicationVersionAsync() =>
+        GetSettingAsync(ApplicationVersionSettingKey);
+
+    public Task SetApplicationVersionAsync(string version) =>
+        SetSettingAsync(ApplicationVersionSettingKey, version);
 
     public async Task SetSettingAsync(
         string key,

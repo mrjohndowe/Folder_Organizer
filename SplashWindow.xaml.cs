@@ -55,14 +55,6 @@ namespace FolderOrganizer.Views
         {
             InitializeComponent();
 
-            var version = Assembly.GetExecutingAssembly().GetName().Version;
-
-            if (version != null)
-            {
-                FooterVersionText.Text =
-                    FooterVersionText.Text = $"Folder Organizer  •  v{AppVersion.Current}";
-            }
-
             _quipTimer.Interval = TimeSpan.FromMilliseconds(3500);
             _quipTimer.Tick += QuipTimer_Tick;
 
@@ -182,7 +174,17 @@ namespace FolderOrganizer.Views
                 30,
                 "Checking database...");
 
-            // Database initialization will go here.
+            var databaseService = new DatabaseService();
+            await databaseService.InitializeAsync();
+
+            var applicationVersion =
+                await databaseService.GetApplicationVersionAsync();
+
+            if (!string.IsNullOrWhiteSpace(applicationVersion))
+            {
+                FooterVersionText.Text =
+                    $"Folder Organizer  •  v{applicationVersion}";
+            }
 
             await SetProgress(
                 50,

@@ -25,13 +25,6 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        var version = Assembly.GetExecutingAssembly().GetName().Version;
-
-        if (version != null)
-        {
-            TitleBarVersionText.Text = $"v{AppVersion.Current}";
-        }
-
         _classificationService = new ClassificationService();
         _scanService = new ScanService(_classificationService);
         _databaseService = new DatabaseService();
@@ -275,6 +268,14 @@ public partial class MainWindow : Window
         try
         {
             await _databaseService.InitializeAsync();
+            var applicationVersion =
+                await _databaseService.GetApplicationVersionAsync();
+
+            if (!string.IsNullOrWhiteSpace(applicationVersion))
+            {
+                TitleBarVersionText.Text = $"v{applicationVersion}";
+            }
+
             var darkModeSetting =
             await _databaseService.GetSettingAsync(
                 "DarkMode");

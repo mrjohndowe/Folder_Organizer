@@ -72,7 +72,7 @@ public static class UpdateService
             }
 
             Version currentVersion =
-                GetCurrentVersion();
+                await GetCurrentVersionAsync();
 
             if (remoteVersion <= currentVersion)
             {
@@ -159,6 +159,19 @@ public static class UpdateService
                     "FolderOrganizer",
                     GetCurrentVersion()
                         .ToString()));
+    }
+
+    private static async Task<Version> GetCurrentVersionAsync()
+    {
+        var databaseService = new DatabaseService();
+        await databaseService.InitializeAsync();
+
+        var storedVersion =
+            await databaseService.GetApplicationVersionAsync();
+
+        return Version.TryParse(storedVersion, out var version)
+            ? version
+            : GetCurrentVersion();
     }
 
     private static Version GetCurrentVersion()
@@ -322,6 +335,11 @@ public static class UpdateService
             throw new InvalidOperationException(
                 "The installer could not be started.");
         }
+
+        var databaseService = new DatabaseService();
+        await databaseService.InitializeAsync();
+        await databaseService.SetApplicationVersionAsync(
+            version.ToString(3));
 
         Application.Current.Shutdown();
     }
