@@ -459,7 +459,7 @@
 					Width="150"
 					Height="120"
 					Stretch="Uniform"
-					Source="pack://application:,,,/Assets/folder.svg"/>
+					Source="pack://application:,,,/Assets/root_folder.svg"/>
 
 				<!-- Destination Folder -->
 				<svgc:SvgViewbox

@@ -772,14 +772,26 @@ public class DatabaseService
         return entries;
     }
 
-    public async Task MarkMoveUndoneAsync(long moveHistoryId)
+    public async Task MarkMovesUndoneAsync(
+        IEnumerable<long> moveHistoryIds)
     {
+        var ids = moveHistoryIds.Distinct().ToList();
+
+        if (ids.Count == 0)
+        {
+            return;
+        }
+
         await using var connection =
             new SqliteConnection(_connectionString);
 
         await connection.OpenAsync();
 
+        await using var transaction =
+            connection.BeginTransaction();
+
         var command = connection.CreateCommand();
+        command.Transaction = transaction;
 
         command.CommandText =
         """
@@ -788,15 +800,20 @@ public class DatabaseService
             WHERE Id = $id AND Status = 'SUCCESS';
         """;
 
-        command.Parameters.AddWithValue("$id", moveHistoryId);
+        var idParameter = command.Parameters.Add("$id", SqliteType.Integer);
 
-        var updated = await command.ExecuteNonQueryAsync();
-
-        if (updated != 1)
+        foreach (var id in ids)
         {
-            throw new InvalidOperationException(
-                "This history entry is no longer available to undo.");
+            idParameter.Value = id;
+
+            if (await command.ExecuteNonQueryAsync() != 1)
+            {
+                throw new InvalidOperationException(
+                    "A history entry is no longer available to undo.");
+            }
         }
+
+        await transaction.CommitAsync();
     }
 
     public async Task<HashSet<string>> GetIgnoredPathsAsync()

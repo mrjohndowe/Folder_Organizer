@@ -120,55 +120,44 @@ public partial class HistoryWindow : Window
         await LoadRunsAsync();
     }
 
-    private async void UndoSelectedMoveButton_Click(
+    private async void UndoSelectedRunButton_Click(
         object sender,
         RoutedEventArgs e)
     {
-        if (MovesDataGrid.SelectedItem is not MoveHistoryEntry entry)
+        if (RunsDataGrid.SelectedItem is not OrganizationRun run)
         {
             MessageBox.Show(
-                "Select a successful move from the history first.",
+                "Select an organization run first.",
                 "Folder Organizer",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
             return;
         }
 
-        if (!entry.Status.Equals("SUCCESS", StringComparison.OrdinalIgnoreCase) ||
-            string.IsNullOrWhiteSpace(entry.FinalDestinationPath))
+        var entries = (await _databaseService.GetMoveHistoryAsync(run.Id))
+            .Where(x => x.Status.Equals(
+                "SUCCESS",
+                StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(x => x.Id)
+            .ToList();
+
+        if (entries.Count == 0)
         {
             MessageBox.Show(
-                "Only successful moves that have not already been undone " +
-                "can be restored.",
+                "This run has no successful moves that can be undone.",
                 "Folder Organizer",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
             return;
         }
 
-        var isFolder = entry.FileType.Equals(
-            "Folder",
-            StringComparison.OrdinalIgnoreCase);
-        var movedItemExists = isFolder
-            ? Directory.Exists(entry.FinalDestinationPath)
-            : File.Exists(entry.FinalDestinationPath);
+        var validationError = ValidateUndoEntries(entries);
 
-        if (!movedItemExists)
+        if (validationError != null)
         {
             MessageBox.Show(
-                "The moved item is no longer at the location recorded in " +
-                "history, so it cannot be safely undone.",
-                "Folder Organizer",
-                MessageBoxButton.OK,
-                MessageBoxImage.Warning);
-            return;
-        }
-
-        if (File.Exists(entry.SourcePath) || Directory.Exists(entry.SourcePath))
-        {
-            MessageBox.Show(
-                "The original location is already occupied. Undo will not " +
-                "overwrite an existing file or folder.",
+                "This run cannot be safely undone. No items were moved.\n\n" +
+                validationError,
                 "Folder Organizer",
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
@@ -176,10 +165,10 @@ public partial class HistoryWindow : Window
         }
 
         var confirmation = MessageBox.Show(
-            $"Move this {(isFolder ? "folder and all of its contents" : "file")} " +
-            "back to its original location?\n\n" +
+            $"Undo run {run.Id} and restore {entries.Count:N0} item(s) " +
+            "to their original locations?\n\n" +
             "Existing items will not be overwritten.",
-            "Undo Move",
+            "Undo Organization Run",
             MessageBoxButton.YesNo,
             MessageBoxImage.Warning,
             MessageBoxResult.No);
@@ -191,41 +180,75 @@ public partial class HistoryWindow : Window
 
         try
         {
-            var sourceDirectory = Path.GetDirectoryName(entry.SourcePath);
-
-            if (string.IsNullOrWhiteSpace(sourceDirectory))
+            foreach (var entry in entries)
             {
-                throw new InvalidOperationException(
-                    "The original location is invalid.");
+                var sourceDirectory = Path.GetDirectoryName(entry.SourcePath)
+                    ?? throw new InvalidOperationException(
+                        "The original location is invalid.");
+
+                Directory.CreateDirectory(sourceDirectory);
+
+                if (IsFolder(entry))
+                {
+                    Directory.Move(entry.FinalDestinationPath!, entry.SourcePath);
+                }
+                else
+                {
+                    File.Move(entry.FinalDestinationPath!, entry.SourcePath);
+                }
             }
 
-            Directory.CreateDirectory(sourceDirectory);
+            await _databaseService.MarkMovesUndoneAsync(
+                entries.Select(x => x.Id));
 
-            if (isFolder)
-            {
-                Directory.Move(entry.FinalDestinationPath, entry.SourcePath);
-            }
-            else
-            {
-                File.Move(entry.FinalDestinationPath, entry.SourcePath);
-            }
-
-            await _databaseService.MarkMoveUndoneAsync(entry.Id);
-
-            entry.Status = "UNDONE";
-            entry.ErrorMessage = null;
-            MovesDataGrid.Items.Refresh();
-            StatusTextBlock.Text = "Move undone successfully.";
+            await LoadRunsAsync();
+            StatusTextBlock.Text =
+                $"Run {run.Id} undone successfully: " +
+                $"{entries.Count:N0} item(s) restored.";
         }
         catch (Exception ex)
         {
             MessageBox.Show(
-                $"The move could not be undone.\n\n{ex.Message}",
+                $"The run could not be undone.\n\n{ex.Message}",
                 "Folder Organizer",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }
     }
+
+    private static string? ValidateUndoEntries(
+        IEnumerable<MoveHistoryEntry> entries)
+    {
+        foreach (var entry in entries)
+        {
+            if (string.IsNullOrWhiteSpace(entry.FinalDestinationPath))
+            {
+                return $"{entry.SourcePath} has no recorded final location.";
+            }
+
+            var movedItemExists = IsFolder(entry)
+                ? Directory.Exists(entry.FinalDestinationPath)
+                : File.Exists(entry.FinalDestinationPath);
+
+            if (!movedItemExists)
+            {
+                return "A moved item is no longer at its recorded location: " +
+                       entry.FinalDestinationPath;
+            }
+
+            if (File.Exists(entry.SourcePath) ||
+                Directory.Exists(entry.SourcePath))
+            {
+                return "An original location is already occupied: " +
+                       entry.SourcePath;
+            }
+        }
+
+        return null;
+    }
+
+    private static bool IsFolder(MoveHistoryEntry entry) =>
+        entry.FileType.Equals("Folder", StringComparison.OrdinalIgnoreCase);
 
     private void CloseButton_Click(
         object sender,
