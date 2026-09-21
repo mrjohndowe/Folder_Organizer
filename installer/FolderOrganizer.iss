@@ -4,7 +4,7 @@
 
 #define MyAppName "Folder Organizer"
 #define MyAppPublisher "Folder Organizer"
-#define MyAppExeName "FolderOrganizer.msi"
+#define MyAppExeName "FolderOrganizer.exe"
 
 [Setup]
 AppId={{59E9612D-315C-49F1-A570-E866391A91EA}

@@ -1,0 +1,19 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package
+    Name="Folder Organizer"
+    Manufacturer="Folder Organizer"
+    Version="$(var.MyAppVersion)"
+    UpgradeCode="2E265690-20FE-4597-8D1D-59B1EA28A0D1"
+    Scope="perMachine">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Folder Organizer is already installed." />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="Folder Organizer" />
+    </StandardDirectory>
+
+    <!-- Include the complete self-contained .NET publish directory. -->
+    <Files Include="$(var.PublishDir)\**" Directory="INSTALLFOLDER" />
+  </Package>
+</Wix>
