@@ -17,4 +17,14 @@ public class CustomRule
     public DateTime UpdatedAt { get; set; }
 
     public RuleAction Action { get; set; } = RuleAction.Move;
+
+    public bool IsRemoval
+    {
+        get => Action == RuleAction.Remove;
+
+        set =>
+            Action = value
+                ? RuleAction.Remove
+                : RuleAction.Move;
+    }
 }
