@@ -124,3 +124,4 @@ jobs:
           generate_release_notes: true
           files: |
             installer/output/FolderOrganizer-Setup.exe
+            installer/output/FolderOrganizer-Setup.msi
