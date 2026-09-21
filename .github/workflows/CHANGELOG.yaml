@@ -1,0 +1,32 @@
+project: Folder Organizer
+format_version: 1
+
+releases:
+  - version: "0.1.0"
+    date: "2026-09-20"
+    status: development
+    title: "Initial Development Release"
+
+    added:
+      - "Folder scanning and organization workflow."
+      - "Splash screen with animated folder and file effects."
+      - "Loading progress messages and rotating loading quips."
+      - "File organization interface."
+      - "Files to be removed workflow for files selected for deletion."
+      - "Windows installer configuration."
+      - "Project website."
+
+    changed:
+      - "Improved splash screen layout."
+      - "Slowed splash-screen file animations."
+      - "Improved visibility of loading quips."
+      - "Adjusted loading progress timing."
+
+    fixed:
+      - "Splash screen layout conflicts between progress messages and folder graphics."
+
+    security:
+      - "Files selected for deletion are moved into a dedicated Files to be removed folder instead of being automatically permanently deleted."
+
+    notes:
+      - "Folder Organizer is currently under active development."

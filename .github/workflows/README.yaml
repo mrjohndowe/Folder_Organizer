@@ -1,0 +1,71 @@
+project:
+  name: "Folder Organizer"
+  version: "0.1.0"
+  status: "Development"
+  platform: "Windows"
+  application_type: "Desktop Application"
+  framework: ".NET / WPF"
+
+description: >
+  Folder Organizer is a Windows desktop application designed to scan,
+  review, and organize folders and files while giving the user control
+  over what gets moved or marked for removal.
+
+features:
+  - name: "Folder Organization"
+    description: "Organizes files into a cleaner folder structure."
+
+  - name: "File Review"
+    description: "Allows files to be reviewed before organization actions are completed."
+
+  - name: "Safe Removal Workflow"
+    description: >
+      Files selected for deletion are placed inside a folder named
+      Files to be removed so the user can inspect and manually delete them.
+
+  - name: "Animated Splash Screen"
+    description: "Displays animated files, progress information, and loading messages."
+
+  - name: "Windows Installer"
+    description: "Can be distributed using an Inno Setup installer."
+
+requirements:
+  operating_system:
+    - "Windows 10"
+    - "Windows 11"
+
+development:
+  ide: "Visual Studio"
+  language: "C#"
+  ui: "WPF / XAML"
+
+build:
+  configuration: "Release"
+  runtime: "win-x64"
+  publish_directory: "publish/FolderOrganizer"
+
+  command: >
+    dotnet publish ./FolderOrganizer.csproj -c Release -r win-x64
+    --self-contained true -p:PublishSingleFile=false
+    -o ./publish/FolderOrganizer
+
+installer:
+  system: "Inno Setup"
+  script: "installer/FolderOrganizer.iss"
+  build_script: "installer/build-installer.ps1"
+  output_directory: "installer/output"
+
+website:
+  directory: "website"
+  entry_point: "website/index.html"
+
+repository:
+  changelog: "CHANGELOG.yaml"
+  readme: "README.yaml"
+
+safety:
+  automatic_permanent_deletion: false
+  removal_folder: "Files to be removed"
+
+license:
+  status: "Not yet specified"
