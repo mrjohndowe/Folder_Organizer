@@ -8,7 +8,7 @@
 
 I've earned these recognitions: [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)
 [![Version](https://img.shields.io/npm/v/my-package.svg)](https://www.npmjs.com/package/my-package)
-[![Tests](https://img.shields.io/github/actions/workflow/status/MYUSER/REPO/tests.yml)](https://github.com/mrjohndowe/Folder_Organizer/actions)
+[![Tests](https://img.shields.io/github/actions/workflow/status/MYUSER/REPO/tests.yml)](https://github.com/mrjohndowe/Folder_Organizer/actions/runs/35592565701/)
 
 ## Table of Contents 📜
 
