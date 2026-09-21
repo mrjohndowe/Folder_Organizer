@@ -200,7 +200,7 @@
 			<DoubleAnimationUsingKeyFrames
 				Storyboard.TargetName="MovingFile5"
 				Storyboard.TargetProperty="Opacity"
-				BeginTime="0:0:2.7">
+				BeginTime="0:0:3.6">
 
 				<DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
 				<LinearDoubleKeyFrame KeyTime="0:0:0.2" Value="1"/>
