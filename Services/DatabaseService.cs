@@ -72,9 +72,9 @@ public class DatabaseService
 
             priorityCommand.CommandText =
             """
-    SELECT COALESCE(MAX(Priority), 0) + 1
-    FROM CustomRules;
-    """;
+                SELECT COALESCE(MAX(Priority), 0) + 1
+                FROM CustomRules;
+            """;
 
             var nextPriority =
                 Convert.ToInt32(
@@ -505,17 +505,18 @@ public class DatabaseService
 
             command.CommandText =
             """
-    UPDATE CustomRules
+            UPDATE CustomRules
 
-    SET
-        FolderName = $folderName,
-        Extensions = $extensions,
-        Priority = $priority,
-        IsEnabled = $isEnabled,
-        UpdatedAt = $updatedAt
+            SET
+                FolderName = $folderName,
+                Extensions = $extensions,
+                Priority = $priority,
+                IsEnabled = $isEnabled,
+                UpdatedAt = $updatedAt,
+                Action = $action,
 
-    WHERE Id = $id;
-    """;
+            WHERE Id = $id;
+            """;
 
             command.Parameters.AddWithValue(
                 "$folderName",
@@ -541,6 +542,10 @@ public class DatabaseService
                 "$id",
                 rule.Id);
 
+            command.Parameters.AddWithValue(
+                "$action",
+                (int)rule.Action);
+
             await command.ExecuteNonQueryAsync();
         }
     }
@@ -558,19 +563,17 @@ public class DatabaseService
 
         command.CommandText =
         """
-    SELECT
-        Id,
-        FolderName,
-        Extensions,
-        Priority,
-        IsEnabled,
-        CreatedAt,
-        UpdatedAt
+        SELECT
+            Id,
+            FolderName,
+            Extensions,
+            Priority,
+            IsEnabled,
+            Action
+        FROM CustomRules
 
-    FROM CustomRules
-
-    ORDER BY Priority ASC, Id ASC;
-    """;
+        ORDER BY Priority ASC, Id ASC;
+        """;
 
         await using var reader =
             await command.ExecuteReaderAsync();
@@ -599,7 +602,11 @@ public class DatabaseService
 
                 UpdatedAt =
                     DateTime.Parse(
-                        reader.GetString(6))
+                        reader.GetString(6)),
+
+                Action =
+                    (RuleAction)reader.GetInt32(
+                        reader.GetOrdinal("Action"))
             });
         }
 
@@ -964,7 +971,8 @@ public class DatabaseService
             Priority INTEGER NOT NULL,
             IsEnabled INTEGER NOT NULL DEFAULT 1,
             CreatedAt TEXT NOT NULL,
-            UpdatedAt TEXT NOT NULL
+            UpdatedAt TEXT NOT NULL,
+            Action INTEGER NOT NULL DEFAULT 0
         );
 
         CREATE INDEX IF NOT EXISTS
@@ -993,6 +1001,55 @@ public class DatabaseService
         """;
 
         await command.ExecuteNonQueryAsync();
+        await EnsureCustomRulesActionColumnAsync(
+            connection);
+    }
+
+    private static async Task EnsureCustomRulesActionColumnAsync(
+    Microsoft.Data.Sqlite.SqliteConnection connection)
+    {
+        bool hasActionColumn = false;
+
+        await using (var checkCommand =
+            connection.CreateCommand())
+        {
+            checkCommand.CommandText =
+                "PRAGMA table_info(CustomRules);";
+
+            await using var reader =
+                await checkCommand.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                string columnName =
+                    reader.GetString(1);
+
+                if (string.Equals(
+                        columnName,
+                        "Action",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    hasActionColumn = true;
+                    break;
+                }
+            }
+        }
+
+        if (hasActionColumn)
+        {
+            return;
+        }
+
+        await using var alterCommand =
+            connection.CreateCommand();
+
+        alterCommand.CommandText =
+            """
+        ALTER TABLE CustomRules
+        ADD COLUMN Action INTEGER NOT NULL DEFAULT 0;
+        """;
+
+        await alterCommand.ExecuteNonQueryAsync();
     }
 
     public async Task<long> StartRunAsync(

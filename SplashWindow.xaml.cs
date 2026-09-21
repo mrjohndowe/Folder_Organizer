@@ -9,13 +9,13 @@ namespace FolderOrganizer.Views
 {
     public partial class SplashScreen : Window
     {
-        private readonly DispatcherTimer _quipTimer = new();
-        private readonly Random _random = new();
+        private readonly DispatcherTimer _quipTimer = new DispatcherTimer();
+        private readonly Random _random = new Random();
 
         private int _lastQuipIndex = -1;
 
         private readonly string[] _loadingQuips =
-        [
+        {
             "Checking all your files... Calculating how much porn you have.",
             "Loading your images... Checking if you have any nudes.",
             "Looking for a folder named Definitely_Not_Porn...",
@@ -46,15 +46,13 @@ namespace FolderOrganizer.Views
             "Searching for passwords.txt... kidding. Mostly.",
             "Consulting the sacred laws of alphabetical order.",
             "Making your filesystem look like an adult lives here."
-        ];
+        };
 
         public SplashScreen()
         {
             InitializeComponent();
 
-            _quipTimer.Interval =
-                 TimeSpan.FromMilliseconds(2200);
-
+            _quipTimer.Interval = TimeSpan.FromMilliseconds(2200);
             _quipTimer.Tick += QuipTimer_Tick;
 
             Loaded += SplashScreen_Loaded;
@@ -68,16 +66,15 @@ namespace FolderOrganizer.Views
 
             do
             {
-                index = _random.Next(
-                    _loadingQuips.Length);
+                index = _random.Next(_loadingQuips.Length);
             }
-            while (index == _lastQuipIndex &&
-                   _loadingQuips.Length > 1);
+            while (
+                index == _lastQuipIndex &&
+                _loadingQuips.Length > 1);
 
             _lastQuipIndex = index;
 
-            QuipText.Text =
-                _loadingQuips[index];
+            QuipText.Text = _loadingQuips[index];
         }
 
         private async void SplashScreen_Loaded(
@@ -86,28 +83,30 @@ namespace FolderOrganizer.Views
         {
             _quipTimer.Start();
 
-            // Show the first joke immediately instead of
-            // waiting 1.2 seconds for the timer.
-            QuipTimer_Tick(
-                null,
-                EventArgs.Empty);
+            // Show the first quip immediately.
+            QuipTimer_Tick(null, EventArgs.Empty);
 
-            Storyboard transferStoryboard =
-                (Storyboard)FindResource(
-                    "FileTransferStoryboard");
+            Storyboard? transferStoryboard = null;
 
-            transferStoryboard.Begin(
-                this,
-                true);
-
-            DateTime splashStarted =
-                DateTime.UtcNow;
+            DateTime splashStarted = DateTime.UtcNow;
 
             try
             {
+                transferStoryboard =
+                    FindResource("FileTransferStoryboard")
+                    as Storyboard;
+
+                if (transferStoryboard != null)
+                {
+                    transferStoryboard.Begin(
+                        this,
+                        true);
+                }
+
                 await RunStartupSequence();
 
-                // Minimum splash-screen display time.
+                // Keep the splash visible long enough for the
+                // animation and quips to actually be seen.
                 const int minimumSplashTime = 8000;
 
                 int elapsed =
@@ -124,7 +123,10 @@ namespace FolderOrganizer.Views
 
                 _quipTimer.Stop();
 
-                transferStoryboard.Stop(this);
+                if (transferStoryboard != null)
+                {
+                    transferStoryboard.Stop(this);
+                }
 
                 MainWindow mainWindow =
                     new MainWindow();
@@ -137,7 +139,10 @@ namespace FolderOrganizer.Views
             {
                 _quipTimer.Stop();
 
-                transferStoryboard.Stop(this);
+                if (transferStoryboard != null)
+                {
+                    transferStoryboard.Stop(this);
+                }
 
                 MessageBox.Show(
                     $"Folder Organizer failed to start.\n\n{ex.Message}",
@@ -205,11 +210,13 @@ namespace FolderOrganizer.Views
                 PercentageText.Text =
                     $"{currentPercentage}%";
 
-                await Task.Delay(350);
+                // Smooth enough to see without making the
+                // loading screen last until retirement.
+                await Task.Delay(250);
             }
 
-            // Give the user a moment to read the status.
-            await Task.Delay(350);
+            // Leave each status on screen briefly so it can be read.
+            await Task.Delay(250);
         }
 
         private void EnsureApplicationFolders()

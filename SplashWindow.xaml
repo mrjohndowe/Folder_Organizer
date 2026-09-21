@@ -162,6 +162,53 @@
 
 			</DoubleAnimationUsingKeyFrames>
 
+			<!-- FILE 5 -->
+			<DoubleAnimationUsingKeyFrames
+				Storyboard.TargetName="File5Transform"
+				Storyboard.TargetProperty="X"
+				BeginTime="0:0:3.6">
+
+				<SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+				<SplineDoubleKeyFrame KeyTime="0:0:1.3" Value="390"/>
+				<SplineDoubleKeyFrame KeyTime="0:0:2.6" Value="790"/>
+
+			</DoubleAnimationUsingKeyFrames>
+
+			<DoubleAnimationUsingKeyFrames
+				Storyboard.TargetName="File5Transform"
+				Storyboard.TargetProperty="Y"
+				BeginTime="0:0:3.6">
+
+				<SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+				<SplineDoubleKeyFrame KeyTime="0:0:1.3" Value="-58"/>
+				<SplineDoubleKeyFrame KeyTime="0:0:2.6" Value="0"/>
+
+			</DoubleAnimationUsingKeyFrames>
+
+			<DoubleAnimationUsingKeyFrames
+				Storyboard.TargetName="MovingFile5"
+				Storyboard.TargetProperty="Opacity"
+				BeginTime="0:0:3.6">
+
+				<DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+				<LinearDoubleKeyFrame KeyTime="0:0:0.2" Value="1"/>
+				<LinearDoubleKeyFrame KeyTime="0:0:2.2" Value="1"/>
+				<LinearDoubleKeyFrame KeyTime="0:0:2.6" Value="0"/>
+
+			</DoubleAnimationUsingKeyFrames>
+
+			<DoubleAnimationUsingKeyFrames
+				Storyboard.TargetName="MovingFile5"
+				Storyboard.TargetProperty="Opacity"
+				BeginTime="0:0:2.7">
+
+				<DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+				<LinearDoubleKeyFrame KeyTime="0:0:0.2" Value="1"/>
+				<LinearDoubleKeyFrame KeyTime="0:0:2.2" Value="1"/>
+				<LinearDoubleKeyFrame KeyTime="0:0:2.6" Value="0"/>
+
+			</DoubleAnimationUsingKeyFrames>
+
 		</Storyboard>
 
 		<!-- Rounded ProgressBar -->
@@ -359,7 +406,7 @@
 					Height="42"
 					Opacity="0"
 					Stretch="Uniform"
-					Source="pack://application:,,,/Assets/music.svg">
+					Source="pack://application:,,,/Assets/photoshop.svg">
 
 					<svgc:SvgViewbox.RenderTransform>
 						<TranslateTransform x:Name="File3Transform"/>
@@ -377,10 +424,28 @@
 					Height="42"
 					Opacity="0"
 					Stretch="Uniform"
-					Source="pack://application:,,,/Assets/zip.svg">
+					Source="pack://application:,,,/Assets/ai.svg">
 
 					<svgc:SvgViewbox.RenderTransform>
 						<TranslateTransform x:Name="File4Transform"/>
+					</svgc:SvgViewbox.RenderTransform>
+
+				</svgc:SvgViewbox>
+
+				<!-- FILE 5 -->
+				<svgc:SvgViewbox
+					x:Name="MovingFile5"
+					Panel.ZIndex="5"
+					Canvas.Left="125"
+					Canvas.Top="64"
+					Width="42"
+					Height="42"
+					Opacity="0"
+					Stretch="Uniform"
+					Source="pack://application:,,,/Assets/csproj.svg">
+
+					<svgc:SvgViewbox.RenderTransform>
+						<TranslateTransform x:Name="File5Transform"/>
 					</svgc:SvgViewbox.RenderTransform>
 
 				</svgc:SvgViewbox>
