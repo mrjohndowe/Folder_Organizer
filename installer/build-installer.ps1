@@ -15,6 +15,15 @@ if (-not (Test-Path $ProjectFile)) {
     throw "Could not find FolderOrganizer.csproj at $ProjectFile"
 }
 
+[xml]$Project = Get-Content $ProjectFile
+$AppVersion = $Project.Project.PropertyGroup.Version |
+    Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+    Select-Object -First 1
+
+if ([string]::IsNullOrWhiteSpace($AppVersion)) {
+    throw "Could not read the application version from $ProjectFile"
+}
+
 Write-Host "Publishing Folder Organizer..."
 
 dotnet publish $ProjectFile `
@@ -51,7 +60,7 @@ if (-not $InnoCompiler) {
 
 Write-Host "Building installer..."
 
-& $InnoCompiler $InstallerScript
+& $InnoCompiler "/DMyAppVersion=$AppVersion" $InstallerScript
 
 if ($LASTEXITCODE -ne 0) {
     throw "Inno Setup failed to build the installer."
