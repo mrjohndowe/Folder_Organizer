@@ -62,6 +62,6 @@ Name: "{autodesktop}\Folder Organizer"; \
     Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; \
+Filename: "{app}\FolderOrganizer.exe"; \
     Description: "Launch Folder Organizer"; \
-    Flags: nowait postinstall skipifsilent
+    Flags: nowait postinstall

@@ -230,20 +230,17 @@ public static class UpdateService
         }
 
         var startInfo =
-            new ProcessStartInfo
-            {
-                FileName =
-                    installerPath,
+        new ProcessStartInfo
+        {
+            FileName = installerPath,
+            UseShellExecute = true,
 
-                UseShellExecute =
-                    true,
-
-                Arguments =
-                    "/VERYSILENT " +
-                    "/SUPPRESSMSGBOXES " +
-                    "/NORESTART " +
-                    "/CLOSEAPPLICATIONS"
-            };
+            Arguments =
+                "/VERYSILENT " +
+                "/SUPPRESSMSGBOXES " +
+                "/NORESTART " +
+                "/CLOSEAPPLICATIONS"
+        };
 
         Process? process = Process.Start(startInfo);
 
