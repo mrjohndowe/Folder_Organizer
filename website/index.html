@@ -70,7 +70,7 @@
                 </div>
 
                 <p class="version">
-                    Current development version: 0.1.0
+                    Current version: <span id="current-version">Loading...</span>
                 </p>
             </div>
 
@@ -205,7 +205,8 @@
                 Designed for 64-bit Windows systems.
             </p>
 
-            <a
+           <a
+                id="download-button"
                 class="button primary large"
                 href="https://github.com/mrjohndowe/Folder_Organizer/releases/latest/download/FolderOrganizer-Setup.exe"
             >
@@ -213,7 +214,7 @@
             </a>
 
             <p class="download-note">
-                Development release 0.1.0
+                Latest release: <span id="download-version">Loading...</span>
             </p>
 
         </div>
@@ -232,6 +233,51 @@
         </span>
     </div>
 </footer>
+<script>
+    async function loadLatestRelease() {
+        const currentVersion = document.getElementById("current-version");
+        const downloadVersion = document.getElementById("download-version");
+        const downloadButton = document.getElementById("download-button");
 
+        try {
+            const response = await fetch(
+                "https://api.github.com/repos/mrjohndowe/Folder_Organizer/releases/latest",
+                {
+                    headers: {
+                        "Accept": "application/vnd.github+json"
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`GitHub API returned ${response.status}`);
+            }
+
+            const release = await response.json();
+
+            const version = release.tag_name || "Unknown";
+            const cleanVersion = version.replace(/^v/, "");
+
+            currentVersion.textContent = cleanVersion;
+            downloadVersion.textContent = cleanVersion;
+
+            const installer = release.assets.find(
+                asset => asset.name === "FolderOrganizer-Setup.exe"
+            );
+
+            if (installer) {
+                downloadButton.href = installer.browser_download_url;
+            }
+        }
+        catch (error) {
+            console.error("Could not load latest release:", error);
+
+            currentVersion.textContent = "Unavailable";
+            downloadVersion.textContent = "Unavailable";
+        }
+    }
+
+    loadLatestRelease();
+</script>
 </body>
 </html>
