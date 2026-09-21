@@ -137,6 +137,137 @@ public partial class MainWindow : Window
         await RefreshScanAsync();
     }
 
+    private void MarkFoldersForRemovalButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        var folders = GetSelectedFolders();
+
+        if (folders.Count == 0)
+        {
+            MessageBox.Show(
+                "Select one or more folders first.",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        foreach (var folder in folders)
+        {
+            folder.Action = "REMOVE";
+            folder.Selected = false;
+            folder.DestinationPath = string.Empty;
+            folder.Reason =
+                "Marked for removal. This is only a review marker; " +
+                "Folder Organizer will not delete it.";
+        }
+
+        PreviewDataGrid.Items.Refresh();
+        StatusTextBlock.Text =
+            $"{folders.Count:N0} folder(s) marked for removal review. " +
+            "Nothing was deleted.";
+    }
+
+    private void MoveFoldersButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        var folders = GetSelectedFolders();
+
+        if (folders.Count == 0)
+        {
+            MessageBox.Show(
+                "Select one or more folders first.",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        var dialog = new OpenFolderDialog
+        {
+            Title = "Select Where to Move the Folder"
+        };
+
+        if (dialog.ShowDialog() != true)
+        {
+            return;
+        }
+
+        var destinationRoot = dialog.FolderName;
+
+        foreach (var folder in folders)
+        {
+            var destination = Path.Combine(destinationRoot, folder.Name);
+
+            if (IsSameOrChildPath(destination, folder.SourcePath))
+            {
+                MessageBox.Show(
+                    $"{folder.Name} cannot be moved into itself or one " +
+                    "of its subfolders.",
+                    "Folder Organizer",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                continue;
+            }
+
+            folder.Action = "MOVE";
+            folder.Selected = true;
+            folder.DestinationPath = destination;
+            folder.Reason =
+                "Move this entire folder and all of its contents.";
+
+            MarkDescendantsCoveredByFolderMove(folder);
+        }
+
+        PreviewDataGrid.Items.Refresh();
+        UpdateApplyButton();
+    }
+
+    private List<MoveOperation> GetSelectedFolders() =>
+        PreviewDataGrid.SelectedItems
+            .OfType<MoveOperation>()
+            .Where(x => x.IsDirectory)
+            .ToList();
+
+    private void MarkDescendantsCoveredByFolderMove(
+        MoveOperation folder)
+    {
+        foreach (var child in _operations.Where(x =>
+                     !ReferenceEquals(x, folder) &&
+                     IsChildPath(x.SourcePath, folder.SourcePath)))
+        {
+            child.Selected = false;
+            child.Action = "IGNORE";
+            child.Reason =
+                $"Included when folder '{folder.Name}' is moved.";
+        }
+    }
+
+    private static bool IsSameOrChildPath(
+        string candidatePath,
+        string parentPath)
+    {
+        var candidate = Path.GetFullPath(candidatePath)
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        var parent = Path.GetFullPath(parentPath)
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return candidate.Equals(parent, StringComparison.OrdinalIgnoreCase) ||
+               candidate.StartsWith(
+                   parent + Path.DirectorySeparatorChar,
+                   StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsChildPath(
+        string candidatePath,
+        string parentPath) =>
+        !Path.GetFullPath(candidatePath).Equals(
+            Path.GetFullPath(parentPath),
+            StringComparison.OrdinalIgnoreCase) &&
+        IsSameOrChildPath(candidatePath, parentPath);
+
     private async void MainWindow_Loaded(
     object sender,
     RoutedEventArgs e)
@@ -342,6 +473,11 @@ public partial class MainWindow : Window
             $"{ignoredCount:N0} ignored | " +
             $"{reviewCount:N0} need review";
 
+        UpdateApplyButton();
+    }
+
+    private void UpdateApplyButton()
+    {
         ApplyButton.IsEnabled =
             _operations.Any(x =>
                 x.Selected &&
@@ -387,7 +523,7 @@ public partial class MainWindow : Window
         if (operationsToApply.Count == 0)
         {
             MessageBox.Show(
-                "There are no selected files to move.",
+                "There are no selected files or folders to move.",
                 "Folder Organizer",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
@@ -395,10 +531,14 @@ public partial class MainWindow : Window
             return;
         }
 
+        var fileCount = operationsToApply.Count(x => !x.IsDirectory);
+        var folderCount = operationsToApply.Count(x => x.IsDirectory);
+
         var confirmation =
             MessageBox.Show(
-                $"You are about to move " +
-                $"{operationsToApply.Count:N0} files.\n\n" +
+                "You are about to move:\n" +
+                $"{fileCount:N0} file(s)\n" +
+                $"{folderCount:N0} folder(s), including their contents.\n\n" +
                 "Existing destination files will NOT be overwritten.\n" +
                 "Nothing will be deleted.\n\n" +
                 "Continue?",

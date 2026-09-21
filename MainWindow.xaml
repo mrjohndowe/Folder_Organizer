@@ -306,6 +306,18 @@
                     Margin="0,0,8,0"
                     Click="RemoveIgnoreButton_Click"/>
 
+                <Button Content="Mark Folder for Removal"
+                    Width="170"
+                    Height="36"
+                    Margin="0,0,8,0"
+                    Click="MarkFoldersForRemovalButton_Click"/>
+
+                <Button Content="Move Folder &amp; Contents"
+                    Width="180"
+                    Height="36"
+                    Margin="0,0,8,0"
+                    Click="MoveFoldersButton_Click"/>
+
 				<Button Content="History"
 		             Width="100"
 		             Height="36"

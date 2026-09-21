@@ -772,6 +772,33 @@ public class DatabaseService
         return entries;
     }
 
+    public async Task MarkMoveUndoneAsync(long moveHistoryId)
+    {
+        await using var connection =
+            new SqliteConnection(_connectionString);
+
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+
+        command.CommandText =
+        """
+            UPDATE MoveHistory
+            SET Status = 'UNDONE', ErrorMessage = NULL
+            WHERE Id = $id AND Status = 'SUCCESS';
+        """;
+
+        command.Parameters.AddWithValue("$id", moveHistoryId);
+
+        var updated = await command.ExecuteNonQueryAsync();
+
+        if (updated != 1)
+        {
+            throw new InvalidOperationException(
+                "This history entry is no longer available to undo.");
+        }
+    }
+
     public async Task<HashSet<string>> GetIgnoredPathsAsync()
     {
         var paths =

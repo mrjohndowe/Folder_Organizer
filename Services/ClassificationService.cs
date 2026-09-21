@@ -5,6 +5,8 @@ namespace FolderOrganizer.Services;
 
 public class ClassificationService
 {
+    public const string RemovalFolderName = "Files to be removed";
+
     private SpecialRule? _specialRule;
 
     public void SetSpecialRule(SpecialRule specialRule)
@@ -75,23 +77,17 @@ public class ClassificationService
         string rootFolder,
         IReadOnlyList<CustomRule>? customRules = null)
     {
-        if (item is DirectoryInfo)
+        customRules ??= [];
+
+        if (item is DirectoryInfo directory)
         {
-            return new MoveOperation
-            {
-                Selected = false,
-                Name = item.Name,
-                SourcePath = item.FullName,
-                Type = "Folder",
-                Action = "IGNORE",
-                DestinationPath = string.Empty,
-                Reason = "Folders are not automatically moved.",
-                IsDirectory = true
-            };
+            return ClassifyDirectory(
+                directory,
+                rootFolder,
+                customRules);
         }
 
         var extension = Path.GetExtension(item.Name).ToLowerInvariant();
-        customRules ??= [];
 
         // Check special rule first (date-based organization)
         var specialRuleResult = ApplySpecialRule(
@@ -243,6 +239,26 @@ public class ClassificationService
             DestinationPath = destination,
             Reason = $"Move {type} to {destinationFolder}.",
             IsDirectory = false
+        };
+    }
+
+    private static MoveOperation ClassifyDirectory(
+        DirectoryInfo directory,
+        string rootFolder,
+        IReadOnlyList<CustomRule> customRules)
+    {
+        return new MoveOperation
+        {
+            Selected = false,
+            Name = directory.Name,
+            SourcePath = directory.FullName,
+            Type = "Folder",
+            Action = "REVIEW",
+            DestinationPath = string.Empty,
+            Reason =
+                "This folder already contains files. Mark it for removal " +
+                "review, or move the entire folder and its contents.",
+            IsDirectory = true
         };
     }
 

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using FolderOrganizer.Models;
@@ -117,6 +118,113 @@ public partial class HistoryWindow : Window
         RoutedEventArgs e)
     {
         await LoadRunsAsync();
+    }
+
+    private async void UndoSelectedMoveButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (MovesDataGrid.SelectedItem is not MoveHistoryEntry entry)
+        {
+            MessageBox.Show(
+                "Select a successful move from the history first.",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        if (!entry.Status.Equals("SUCCESS", StringComparison.OrdinalIgnoreCase) ||
+            string.IsNullOrWhiteSpace(entry.FinalDestinationPath))
+        {
+            MessageBox.Show(
+                "Only successful moves that have not already been undone " +
+                "can be restored.",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        var isFolder = entry.FileType.Equals(
+            "Folder",
+            StringComparison.OrdinalIgnoreCase);
+        var movedItemExists = isFolder
+            ? Directory.Exists(entry.FinalDestinationPath)
+            : File.Exists(entry.FinalDestinationPath);
+
+        if (!movedItemExists)
+        {
+            MessageBox.Show(
+                "The moved item is no longer at the location recorded in " +
+                "history, so it cannot be safely undone.",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        if (File.Exists(entry.SourcePath) || Directory.Exists(entry.SourcePath))
+        {
+            MessageBox.Show(
+                "The original location is already occupied. Undo will not " +
+                "overwrite an existing file or folder.",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        var confirmation = MessageBox.Show(
+            $"Move this {(isFolder ? "folder and all of its contents" : "file")} " +
+            "back to its original location?\n\n" +
+            "Existing items will not be overwritten.",
+            "Undo Move",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning,
+            MessageBoxResult.No);
+
+        if (confirmation != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        try
+        {
+            var sourceDirectory = Path.GetDirectoryName(entry.SourcePath);
+
+            if (string.IsNullOrWhiteSpace(sourceDirectory))
+            {
+                throw new InvalidOperationException(
+                    "The original location is invalid.");
+            }
+
+            Directory.CreateDirectory(sourceDirectory);
+
+            if (isFolder)
+            {
+                Directory.Move(entry.FinalDestinationPath, entry.SourcePath);
+            }
+            else
+            {
+                File.Move(entry.FinalDestinationPath, entry.SourcePath);
+            }
+
+            await _databaseService.MarkMoveUndoneAsync(entry.Id);
+
+            entry.Status = "UNDONE";
+            entry.ErrorMessage = null;
+            MovesDataGrid.Items.Refresh();
+            StatusTextBlock.Text = "Move undone successfully.";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"The move could not be undone.\n\n{ex.Message}",
+                "Folder Organizer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
     }
 
     private void CloseButton_Click(
