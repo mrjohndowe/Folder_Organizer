@@ -1,5 +1,8 @@
+#ifndef MyAppVersion
+  #define MyAppVersion "0.0.0"
+#endif
+
 #define MyAppName "Folder Organizer"
-#define MyAppVersion "0.1.0"
 #define MyAppPublisher "Folder Organizer"
 #define MyAppExeName "FolderOrganizer.exe"
 
@@ -9,13 +12,17 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 
+VersionInfoVersion={#MyAppVersion}
+VersionInfoProductName={#MyAppName}
+VersionInfoProductVersion={#MyAppVersion}
+
 DefaultDirName={autopf}\Folder Organizer
 DefaultGroupName=Folder Organizer
 
 DisableProgramGroupPage=yes
 
 OutputDir=output
-OutputBaseFilename=FolderOrganizer-Setup-{#MyAppVersion}
+OutputBaseFilename=FolderOrganizer-Setup
 
 Compression=lzma2
 SolidCompression=yes
@@ -58,7 +65,3 @@ Name: "{autodesktop}\Folder Organizer"; \
 Filename: "{app}\{#MyAppExeName}"; \
     Description: "Launch Folder Organizer"; \
     Flags: nowait postinstall skipifsilent
-
-[UninstallDelete]
-Type: filesandordirs; \
-    Name: "{app}"
