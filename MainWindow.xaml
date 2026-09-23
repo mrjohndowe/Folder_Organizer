@@ -201,11 +201,43 @@
                 Background="{DynamicResource PanelBackgroundBrush}"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1">
-            <TreeView x:Name="PreviewTreeView"
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Margin="32,7,8,7">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="28"/>
+                        <ColumnDefinition Width="28"/>
+                        <ColumnDefinition Width="28"/>
+                        <ColumnDefinition Width="210"/>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Mark" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" FontSize="11"/>
+                    <TextBlock Grid.Column="1" Text="Use" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" FontSize="11"/>
+                    <TextBlock Grid.Column="3" Text="File / Folder" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" FontSize="11"/>
+                    <TextBlock Grid.Column="4" Text="Action" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" FontSize="11"/>
+                    <TextBlock Grid.Column="5" Text="Destination / Details" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" FontSize="11"/>
+                </Grid>
+
+            <TreeView Grid.Row="1"
+                      x:Name="PreviewTreeView"
                       ItemsSource="{Binding ScanTree}"
                       Background="Transparent"
                       Foreground="{DynamicResource TextBrush}">
                 <TreeView.Resources>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                    </Style>
+
+                    <Style TargetType="{x:Type TextBlock}">
+                        <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+                    </Style>
+
                     <HierarchicalDataTemplate DataType="{x:Type models:ScanTreeNode}"
                                               ItemsSource="{Binding Children}">
                         <Grid Margin="2">
@@ -220,16 +252,17 @@
 
                             <CheckBox Grid.Column="0"
                                       IsChecked="{Binding IsMarked}"
+                                      IsEnabled="{Binding HasOperation}"
                                       ToolTip="Mark this item for Ignore, Remove Ignore, or folder actions."/>
 
                             <CheckBox Grid.Column="1"
-                                      IsChecked="{Binding Operation.Selected}"
+                                      IsChecked="{Binding Selected}"
                                       IsEnabled="{Binding CanApply}"
                                       Click="PreviewUseCheckBox_Click"
                                       ToolTip="Include this proposed move when applying changes."/>
 
                             <svgc:SvgViewbox Grid.Column="2"
-                                              Source="{Binding Operation.IconPath}"
+                                              Source="{Binding IconPath}"
                                               Width="20"
                                               Height="20"
                                               Stretch="Uniform"
@@ -237,12 +270,12 @@
                                               VerticalAlignment="Center"/>
 
                             <TextBlock Grid.Column="3"
-                                       Text="{Binding Operation.Name}"
+                                       Text="{Binding Name}"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"/>
 
                             <TextBlock Grid.Column="4"
-                                       Text="{Binding Operation.Action}"
+                                       Text="{Binding Action}"
                                        VerticalAlignment="Center"
                                        FontWeight="SemiBold"/>
 
@@ -251,11 +284,12 @@
                                        VerticalAlignment="Center"
                                        Opacity="0.72"
                                        TextTrimming="CharacterEllipsis"
-                                       ToolTip="{Binding Operation.Reason}"/>
+                                       ToolTip="{Binding Reason}"/>
                         </Grid>
                     </HierarchicalDataTemplate>
                 </TreeView.Resources>
             </TreeView>
+            </Grid>
         </Border>
 
         <!-- Bottom controls -->

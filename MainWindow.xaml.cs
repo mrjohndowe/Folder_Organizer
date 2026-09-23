@@ -220,8 +220,8 @@ public partial class MainWindow : Window
 
     private List<MoveOperation> GetMarkedOperations() =>
         FlattenTreeNodes(ScanTree)
-            .Where(x => x.IsMarked)
-            .Select(x => x.Operation)
+            .Where(x => x.IsMarked && x.Operation is not null)
+            .Select(x => x.Operation!)
             .ToList();
 
     private static IEnumerable<ScanTreeNode> FlattenTreeNodes(
@@ -247,6 +247,8 @@ public partial class MainWindow : Window
             x => new ScanTreeNode(x),
             StringComparer.OrdinalIgnoreCase);
 
+        var rootNodes = new List<ScanTreeNode>();
+
         foreach (var operation in _operations)
         {
             var node = nodesByPath[Path.GetFullPath(operation.SourcePath)];
@@ -259,19 +261,28 @@ public partial class MainWindow : Window
             }
             else
             {
-                ScanTree.Add(node);
+                rootNodes.Add(node);
             }
         }
 
-        SortTreeNodes(ScanTree);
+        var scanRoot = ScanTreeNode.CreateRoot(
+            FolderPathTextBox.Text.Trim());
+
+        foreach (var rootNode in rootNodes)
+        {
+            scanRoot.Children.Add(rootNode);
+        }
+
+        SortTreeNodes(scanRoot.Children);
+        ScanTree.Add(scanRoot);
     }
 
     private static void SortTreeNodes(
         ObservableCollection<ScanTreeNode> nodes)
     {
         var ordered = nodes
-            .OrderBy(x => x.Operation.IsDirectory ? 0 : 1)
-            .ThenBy(x => x.Operation.Name, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(x => x.IsDirectory ? 0 : 1)
+            .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         nodes.Clear();
