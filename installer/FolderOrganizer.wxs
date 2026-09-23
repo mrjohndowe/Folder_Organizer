@@ -1,19 +1,76 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
   <Package
-    Name="Folder Organizer"
-    Manufacturer="Folder Organizer"
-    Version="$(var.MyAppVersion)"
-    UpgradeCode="2E265690-20FE-4597-8D1D-59B1EA28A0D1"
-    Scope="perMachine">
+      Name="Folder Organizer"
+      Manufacturer="Folder Organizer"
+      Version="$(var.MyAppVersion)"
+      UpgradeCode="2E265690-20FE-4597-8D1D-59B1EA28A0D1"
+      Scope="perMachine">
 
-    <MajorUpgrade DowngradeErrorMessage="A newer version of Folder Organizer is already installed." />
-    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+    <MajorUpgrade
+        DowngradeErrorMessage="A newer version of Folder Organizer is already installed." />
 
+    <MediaTemplate
+        EmbedCab="yes"
+        CompressionLevel="high" />
+
+    <!-- ARP metadata -->
+    <Property
+        Id="ARPCOMMENTS"
+        Value="Organize files and folders safely with preview and history." />
+
+    <Property
+        Id="ARPPRODUCTICON"
+        Value="FolderOrganizerIcon.exe" />
+
+    <!-- Installation directory -->
     <StandardDirectory Id="ProgramFiles64Folder">
-      <Directory Id="INSTALLFOLDER" Name="Folder Organizer" />
+
+      <Directory
+          Id="INSTALLFOLDER"
+          Name="Folder Organizer">
+
+        <Files
+            Include="$(var.PublishDir)\**" />
+
+      </Directory>
+
     </StandardDirectory>
 
-    <!-- Include the complete self-contained .NET publish directory. -->
-    <Files Include="$(var.PublishDir)\**" Directory="INSTALLFOLDER" />
+    <!-- Start Menu -->
+    <StandardDirectory Id="ProgramMenuFolder">
+
+      <Directory
+          Id="ApplicationProgramsFolder"
+          Name="Folder Organizer">
+
+        <Component Id="StartMenuShortcutComponent">
+
+          <Shortcut
+              Id="StartMenuShortcut"
+              Name="Folder Organizer"
+              Description="Folder Organizer"
+              Target="[INSTALLFOLDER]FolderOrganizer.exe"
+              WorkingDirectory="INSTALLFOLDER" />
+
+          <RemoveFolder
+              Id="RemoveApplicationProgramsFolder"
+              On="uninstall" />
+
+          <RegistryValue
+              Root="HKCU"
+              Key="Software\FolderOrganizer"
+              Name="StartMenuShortcut"
+              Type="integer"
+              Value="1"
+              KeyPath="yes" />
+
+        </Component>
+
+      </Directory>
+
+    </StandardDirectory>
+
   </Package>
+
 </Wix>

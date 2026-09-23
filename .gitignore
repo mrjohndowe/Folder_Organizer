@@ -365,3 +365,5 @@ FodyWeavers.xsd
 *.zip
 folder_tree.txt
 generate_tree.py
+installer/output/FolderOrganizer-Setup.msi
+installer/output/FolderOrganizer-Setup.wixpdb
