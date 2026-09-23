@@ -48,15 +48,35 @@ $WixCommand =
 
 if (-not $WixCommand)
 {
-    throw @"
-WiX Toolset was not found.
+    Write-Host "WiX Toolset not found."
+    Write-Host "Would you like to install it?"
 
-Install it with:
+    $answer = (Read-Host "Enter Yes/No").Trim().ToLowerInvariant()
 
-dotnet tool install --global wix
+    switch ($answer)
+    {
+        { $_ -in @("y", "yes", "Y") }
+        {
+            Write-Host "Installing WiX Toolset..."
 
-Then reopen PowerShell and run the script again.
-"@
+            dotnet tool install --global wix
+
+            if ($LASTEXITCODE -ne 0)
+            {
+                throw "WiX Toolset installation failed."
+            }
+        }
+
+        { $_ -in @("n", "no", "N") }
+        {
+            throw "WiX Toolset is required to build the MSI."
+        }
+
+        default
+        {
+            throw "Invalid response. Enter y/Y/yes or n/N/no."
+        }
+    }
 }
 
 wix build `
