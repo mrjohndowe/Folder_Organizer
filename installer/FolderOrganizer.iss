@@ -19,6 +19,10 @@ VersionInfoProductVersion={#MyAppVersion}
 DefaultDirName={autopf}\Folder Organizer
 DefaultGroupName=Folder Organizer
 
+LicenseFile=TermsOfService.txt
+InfoBeforeFile=README.txt
+DisableDirPage=no
+
 DisableProgramGroupPage=yes
 
 OutputDir=output
@@ -53,6 +57,14 @@ Source: "..\publish\FolderOrganizer\*"; \
     DestDir: "{app}"; \
     Flags: ignoreversion recursesubdirs createallsubdirs
 
+Source: "TermsOfService.txt"; \
+    DestDir: "{app}"; \
+    Flags: ignoreversion
+
+Source: "README.txt"; \
+    DestDir: "{app}"; \
+    Flags: ignoreversion
+
 [Icons]
 Name: "{autoprograms}\Folder Organizer"; \
     Filename: "{app}\{#MyAppExeName}"
@@ -64,4 +76,4 @@ Name: "{autodesktop}\Folder Organizer"; \
 [Run]
 Filename: "{app}\FolderOrganizer.exe"; \
     Description: "Launch Folder Organizer"; \
-    Flags: nowait postinstall
+    Flags: nowait postinstall skipifsilent

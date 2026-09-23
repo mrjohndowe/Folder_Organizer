@@ -1,4 +1,5 @@
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
   <Package
       Name="Folder Organizer"
@@ -19,6 +20,18 @@
         Id="ARPCOMMENTS"
         Value="Organize files and folders safely with preview and history." />
 
+    <WixVariable
+        Id="WixUILicenseRtf"
+        Value="$(var.InstallerSourceDir)\TermsOfService.rtf" />
+
+    <ui:WixUI
+        Id="WixUI_InstallDir"
+        InstallDirectory="INSTALLFOLDER" />
+
+    <Property
+        Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT"
+        Value="Launch Folder Organizer" />
+
     <!-- Installation directory -->
     <StandardDirectory Id="ProgramFiles64Folder">
 
@@ -31,6 +44,24 @@
           <File
               Id="FolderOrganizerExe"
               Source="$(var.PublishDir)\FolderOrganizer.exe"
+              KeyPath="yes" />
+
+        </Component>
+
+        <Component Id="TermsOfServiceComponent">
+
+          <File
+              Id="TermsOfServiceText"
+              Source="$(var.InstallerSourceDir)\TermsOfService.txt"
+              KeyPath="yes" />
+
+        </Component>
+
+        <Component Id="ReadmeComponent">
+
+          <File
+              Id="ReadmeText"
+              Source="$(var.InstallerSourceDir)\README.txt"
               KeyPath="yes" />
 
         </Component>
@@ -87,13 +118,16 @@
         Impersonate="yes" />
 
     <InstallExecuteSequence>
-
-      <Custom
-          Action="LaunchFolderOrganizer"
-          After="InstallFinalize"
-          Condition="NOT Installed AND UILevel >= 4" />
-
     </InstallExecuteSequence>
+
+    <UI>
+      <Publish
+          Dialog="ExitDialog"
+          Control="Finish"
+          Event="DoAction"
+          Value="LaunchFolderOrganizer"
+          Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
+    </UI>
 
   </Package>
 

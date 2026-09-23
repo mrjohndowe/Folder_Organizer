@@ -1,0 +1,32 @@
+FOLDER ORGANIZER TERMS OF SERVICE
+Effective date: September 23, 2026
+
+Please read these Terms of Service before installing or using Folder Organizer.
+
+1. ACCEPTANCE
+By installing or using Folder Organizer, you agree to these terms. If you do not agree, do not install or use the software.
+
+2. LICENSE
+Mr John Dowe grants you a personal, non-exclusive, non-transferable, revocable license to install and use Folder Organizer on Windows devices you own or control, subject to these terms.
+
+3. HOW THE SOFTWARE WORKS
+Folder Organizer helps you review and organize files and folders using configurable rules. It displays proposed moves before they are applied and is designed not to delete files. You are responsible for reviewing all proposed changes, keeping backups of important data, and confirming that the selected source and destination folders are correct.
+
+4. YOUR RESPONSIBILITIES
+You must not use the software to violate any law, infringe another person's rights, or access files or devices without authorization. You are responsible for the files, folders, rules, and destinations you select.
+
+5. UPDATES
+Folder Organizer may offer optional update checks. You choose whether to download or install an update. Updates may modify, add, or remove features.
+
+6. NO WARRANTY
+THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE," WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED, OR STATUTORY, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. TO THE MAXIMUM EXTENT ALLOWED BY LAW, USE OF THE SOFTWARE IS AT YOUR OWN RISK.
+
+7. LIMITATION OF LIABILITY
+TO THE MAXIMUM EXTENT ALLOWED BY LAW, MR JOHN DOWE WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR FOR LOSS OF DATA, FILES, PROFITS, OR BUSINESS, ARISING FROM OR RELATED TO THE SOFTWARE OR THESE TERMS.
+
+8. TERMINATION
+These terms remain in effect until terminated. Your license ends automatically if you breach these terms. You may terminate it at any time by uninstalling Folder Organizer and deleting its copies.
+
+9. CONTACT
+Questions about these terms can be sent to mrjohndowe@outlook.com.
+
