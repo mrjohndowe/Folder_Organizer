@@ -369,3 +369,4 @@ installer/output/FolderOrganizer-Setup.msi
 installer/output/FolderOrganizer-Setup.wixpdb
 installer/output/0.1.7/FolderOrganizer-Setup.msi
 installer/output/0.1.7/FolderOrganizer-Setup.wixpdb
+installer/output/**/*.*
