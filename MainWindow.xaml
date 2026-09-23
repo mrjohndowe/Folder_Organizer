@@ -207,27 +207,28 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Grid Margin="32,7,8,7">
+                <Grid Margin="32,7,8,7"
+                      MinWidth="1320">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="28"/>
-                        <ColumnDefinition Width="28"/>
+                        <ColumnDefinition Width="56"/>
                         <ColumnDefinition Width="28"/>
                         <ColumnDefinition Width="210"/>
                         <ColumnDefinition Width="110"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Mark" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" FontSize="11"/>
-                    <TextBlock Grid.Column="1" Text="Use" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" FontSize="11"/>
-                    <TextBlock Grid.Column="3" Text="File / Folder" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" FontSize="11"/>
-                    <TextBlock Grid.Column="4" Text="Action" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" FontSize="11"/>
-                    <TextBlock Grid.Column="5" Text="Destination / Details" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" FontSize="11"/>
+                    <TextBlock Text="Select" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" FontSize="11"/>
+                    <TextBlock Grid.Column="2" Text="File / Folder" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" FontSize="11"/>
+                    <TextBlock Grid.Column="3" Text="Action" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" FontSize="11"/>
+                    <TextBlock Grid.Column="4" Text="Destination / Details" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" FontSize="11"/>
                 </Grid>
 
             <TreeView Grid.Row="1"
                       x:Name="PreviewTreeView"
                       ItemsSource="{Binding ScanTree}"
                       Background="Transparent"
-                      Foreground="{DynamicResource TextBrush}">
+                      Foreground="{DynamicResource TextBrush}"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <TreeView.Resources>
                     <Style TargetType="{x:Type TreeViewItem}">
                         <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
@@ -240,10 +241,10 @@
 
                     <HierarchicalDataTemplate DataType="{x:Type models:ScanTreeNode}"
                                               ItemsSource="{Binding Children}">
-                        <Grid Margin="2">
+                        <Grid Margin="2"
+                              MinWidth="1320">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="28"/>
-                                <ColumnDefinition Width="28"/>
+                                <ColumnDefinition Width="56"/>
                                 <ColumnDefinition Width="28"/>
                                 <ColumnDefinition Width="210"/>
                                 <ColumnDefinition Width="110"/>
@@ -251,17 +252,12 @@
                             </Grid.ColumnDefinitions>
 
                             <CheckBox Grid.Column="0"
-                                      IsChecked="{Binding IsMarked}"
-                                      IsEnabled="{Binding HasOperation}"
-                                      ToolTip="Mark this item for Ignore, Remove Ignore, or folder actions."/>
-
-                            <CheckBox Grid.Column="1"
                                       IsChecked="{Binding Selected}"
-                                      IsEnabled="{Binding CanApply}"
+                                      IsEnabled="{Binding HasOperation}"
                                       Click="PreviewUseCheckBox_Click"
-                                      ToolTip="Include this proposed move when applying changes."/>
+                                      ToolTip="Select this item for applying moves, ignore actions, or folder actions."/>
 
-                            <svgc:SvgViewbox Grid.Column="2"
+                            <svgc:SvgViewbox Grid.Column="1"
                                               Source="{Binding IconPath}"
                                               Width="20"
                                               Height="20"
@@ -269,17 +265,17 @@
                                               HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
 
-                            <TextBlock Grid.Column="3"
+                            <TextBlock Grid.Column="2"
                                        Text="{Binding Name}"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"/>
 
-                            <TextBlock Grid.Column="4"
+                            <TextBlock Grid.Column="3"
                                        Text="{Binding Action}"
                                        VerticalAlignment="Center"
                                        FontWeight="SemiBold"/>
 
-                            <TextBlock Grid.Column="5"
+                            <TextBlock Grid.Column="4"
                                        Text="{Binding Summary}"
                                        VerticalAlignment="Center"
                                        Opacity="0.72"
@@ -310,7 +306,7 @@
             <StackPanel Grid.Column="1"
                         Orientation="Horizontal">
 
-				<Button Content="Ignore Marked"
+				<Button Content="Ignore Selected"
                     Width="120"
                     Height="36"
                     Margin="0,0,8,0"

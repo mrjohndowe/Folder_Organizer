@@ -220,7 +220,7 @@ public partial class MainWindow : Window
 
     private List<MoveOperation> GetMarkedOperations() =>
         FlattenTreeNodes(ScanTree)
-            .Where(x => x.IsMarked && x.Operation is not null)
+            .Where(x => x.Selected && x.Operation is not null)
             .Select(x => x.Operation!)
             .ToList();
 
