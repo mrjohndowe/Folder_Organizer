@@ -237,7 +237,7 @@ public class DatabaseService
         }
     }
 
-   
+
 
     public async Task MoveCustomRuleAsync(
     long ruleId,
@@ -1022,6 +1022,14 @@ public class DatabaseService
                 REFERENCES OrganizationRuns(Id)
         );
 
+         CREATE TABLE IF NOT EXISTS IgnoredItems
+        (
+            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            FullPath TEXT NOT NULL UNIQUE COLLATE NOCASE,
+            CreatedAt TEXT NOT NULL
+        );
+
+
         CREATE TABLE IF NOT EXISTS CustomRules
         (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1049,6 +1057,9 @@ public class DatabaseService
             CreatedAt TEXT NOT NULL,
             UpdatedAt TEXT NOT NULL
         );
+
+        CREATE INDEX IF NOT EXISTS IX_IgnoredItems_FullPath
+             ON IgnoredItems(FullPath);
 
         CREATE INDEX IF NOT EXISTS
             IX_MoveHistory_RunId
