@@ -19,10 +19,6 @@
         Id="ARPCOMMENTS"
         Value="Organize files and folders safely with preview and history." />
 
-    <Property
-        Id="ARPPRODUCTICON"
-        Value="FolderOrganizerIcon.exe" />
-
     <!-- Installation directory -->
     <StandardDirectory Id="ProgramFiles64Folder">
 
@@ -30,8 +26,18 @@
           Id="INSTALLFOLDER"
           Name="Folder Organizer">
 
-        <Files
-            Include="$(var.PublishDir)\**" />
+        <Component Id="FolderOrganizerMainComponent">
+
+          <File
+              Id="FolderOrganizerExe"
+              Source="$(var.PublishDir)\FolderOrganizer.exe"
+              KeyPath="yes" />
+
+        </Component>
+
+       <Files Include="$(var.PublishDir)\**">
+          <Exclude Files="$(var.PublishDir)\FolderOrganizer.exe" />
+      </Files>
 
       </Directory>
 
@@ -70,6 +76,24 @@
       </Directory>
 
     </StandardDirectory>
+
+    <!-- Launch app after interactive install only -->
+    <CustomAction
+        Id="LaunchFolderOrganizer"
+        FileRef="FolderOrganizerExe"
+        ExeCommand=""
+        Execute="immediate"
+        Return="asyncNoWait"
+        Impersonate="yes" />
+
+    <InstallExecuteSequence>
+
+      <Custom
+          Action="LaunchFolderOrganizer"
+          After="InstallFinalize"
+          Condition="NOT Installed AND UILevel >= 4" />
+
+    </InstallExecuteSequence>
 
   </Package>
 
