@@ -43,6 +43,22 @@ if ($LASTEXITCODE -ne 0)
 
 Write-Host "Building MSI..."
 
+$WixCommand =
+    Get-Command wix -ErrorAction SilentlyContinue
+
+if (-not $WixCommand)
+{
+    throw @"
+WiX Toolset was not found.
+
+Install it with:
+
+dotnet tool install --global wix
+
+Then reopen PowerShell and run the script again.
+"@
+}
+
 wix build `
     -acceptEula wix7 `
     $WixSource `
