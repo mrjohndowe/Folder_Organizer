@@ -1,5 +1,5 @@
 $ErrorActionPreference = "Stop"
-
+clear
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $ProjectFile = Join-Path $ProjectRoot "FolderOrganizer.csproj"
 $PublishDirectory = Join-Path $ProjectRoot "publish\FolderOrganizer"

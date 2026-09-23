@@ -4,7 +4,7 @@ $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $ProjectFile = Join-Path $ProjectRoot "FolderOrganizer.csproj"
 $PublishDirectory = Join-Path $ProjectRoot "publish\FolderOrganizer"
 $InstallerScript = Join-Path $PSScriptRoot "FolderOrganizer.iss"
-
+cls
 Write-Host ""
 Write-Host "========================================"
 Write-Host " Folder Organizer Installer Builder"
