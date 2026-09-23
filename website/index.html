@@ -211,7 +211,14 @@
                 class="button primary large"
                 href="https://github.com/mrjohndowe/Folder_Organizer/releases/latest/download/FolderOrganizer-Setup.exe"
             >
-                Download for Windows
+                Download for Windows EXE
+            </a>
+            <br><br>
+             <a
+                id="download-button-MSI"
+                class="button primary large"
+                href="#">
+                Download for Windows MSI
             </a>
 
             <p class="download-note">
@@ -237,7 +244,13 @@
         <a href="installer-support.html">Installer Support</a>
     </div>
 </footer>
+
 <script>
+    const currentVersionW = "0.1.9";
+
+    document.getElementById("download-button-MSI").href =
+        `https://github.com/mrjohndowe/Folder_Organizer/releases/latest/download/FolderOrganizer-${currentVersionW}-x64.msi`;
+
     async function loadLatestRelease() {
         const currentVersion = document.getElementById("current-version");
         const downloadVersion = document.getElementById("download-version");
