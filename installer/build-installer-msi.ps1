@@ -5,9 +5,9 @@ $ProjectFile = Join-Path $ProjectRoot "FolderOrganizer.csproj"
 $PublishDirectory = Join-Path $ProjectRoot "publish\FolderOrganizer"
 $WixSource = Join-Path $PSScriptRoot "FolderOrganizer.wxs"
 $OutputRoot = Join-Path $PSScriptRoot "output"
-$VersionOutputDirectory = Join-Path $OutputRoot $AppVersion
 
-[xml]$Project = Get-Content $ProjectFile
+[xml]$Project =
+    Get-Content $ProjectFile
 
 $AppVersion =
     $Project.Project.PropertyGroup.Version |
@@ -18,14 +18,22 @@ $AppVersion =
 
 if ([string]::IsNullOrWhiteSpace($AppVersion))
 {
-    throw "Could not read application version."
+    throw "Could not read application version from $ProjectFile"
 }
+
+$AppVersion = $AppVersion.ToString().Trim()
+
+$VersionOutputDirectory =
+    Join-Path $OutputRoot $AppVersion
 
 New-Item `
     -ItemType Directory `
     -Force `
     -Path $VersionOutputDirectory |
     Out-Null
+
+Write-Host "Building version $AppVersion"
+Write-Host "MSI output directory: $VersionOutputDirectory"
 
 Write-Host "Publishing Folder Organizer..."
 
