@@ -14,6 +14,7 @@ public partial class MainWindow : Window
 {
     private readonly DatabaseService _databaseService;
     private readonly ObservableCollection<MoveOperation> _operations = [];
+    public ObservableCollection<ScanTreeNode> ScanTree { get; } = [];
     private readonly DestinationService _destinationService;
     private readonly FileMoveService _fileMoveService;
 
@@ -33,7 +34,7 @@ public partial class MainWindow : Window
 
         Loaded += MainWindow_Loaded;
 
-        PreviewDataGrid.ItemsSource = _operations;
+        DataContext = this;
     }
 
     private void BrowseButton_Click(
@@ -76,10 +77,7 @@ public partial class MainWindow : Window
     object sender,
     RoutedEventArgs e)
     {
-        var selectedItems =
-            PreviewDataGrid.SelectedItems
-                .OfType<MoveOperation>()
-                .ToList();
+        var selectedItems = GetMarkedOperations();
 
         if (selectedItems.Count == 0)
         {
@@ -105,10 +103,7 @@ public partial class MainWindow : Window
     object sender,
     RoutedEventArgs e)
     {
-        var selectedItems =
-            PreviewDataGrid.SelectedItems
-                .OfType<MoveOperation>()
-                .ToList();
+        var selectedItems = GetMarkedOperations();
 
         if (selectedItems.Count == 0)
         {
@@ -156,7 +151,7 @@ public partial class MainWindow : Window
                 "Folder Organizer will not delete it.";
         }
 
-        PreviewDataGrid.Items.Refresh();
+        RebuildScanTree();
         StatusTextBlock.Text =
             $"{folders.Count:N0} folder(s) marked for removal review. " +
             "Nothing was deleted.";
@@ -214,15 +209,84 @@ public partial class MainWindow : Window
             MarkDescendantsCoveredByFolderMove(folder);
         }
 
-        PreviewDataGrid.Items.Refresh();
+        RebuildScanTree();
         UpdateApplyButton();
     }
 
     private List<MoveOperation> GetSelectedFolders() =>
-        PreviewDataGrid.SelectedItems
-            .OfType<MoveOperation>()
+        GetMarkedOperations()
             .Where(x => x.IsDirectory)
             .ToList();
+
+    private List<MoveOperation> GetMarkedOperations() =>
+        FlattenTreeNodes(ScanTree)
+            .Where(x => x.IsMarked)
+            .Select(x => x.Operation)
+            .ToList();
+
+    private static IEnumerable<ScanTreeNode> FlattenTreeNodes(
+        IEnumerable<ScanTreeNode> nodes)
+    {
+        foreach (var node in nodes)
+        {
+            yield return node;
+
+            foreach (var child in FlattenTreeNodes(node.Children))
+            {
+                yield return child;
+            }
+        }
+    }
+
+    private void RebuildScanTree()
+    {
+        ScanTree.Clear();
+
+        var nodesByPath = _operations.ToDictionary(
+            x => Path.GetFullPath(x.SourcePath),
+            x => new ScanTreeNode(x),
+            StringComparer.OrdinalIgnoreCase);
+
+        foreach (var operation in _operations)
+        {
+            var node = nodesByPath[Path.GetFullPath(operation.SourcePath)];
+            var parentPath = Path.GetDirectoryName(operation.SourcePath);
+
+            if (!string.IsNullOrWhiteSpace(parentPath) &&
+                nodesByPath.TryGetValue(Path.GetFullPath(parentPath), out var parent))
+            {
+                parent.Children.Add(node);
+            }
+            else
+            {
+                ScanTree.Add(node);
+            }
+        }
+
+        SortTreeNodes(ScanTree);
+    }
+
+    private static void SortTreeNodes(
+        ObservableCollection<ScanTreeNode> nodes)
+    {
+        var ordered = nodes
+            .OrderBy(x => x.Operation.IsDirectory ? 0 : 1)
+            .ThenBy(x => x.Operation.Name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        nodes.Clear();
+
+        foreach (var node in ordered)
+        {
+            SortTreeNodes(node.Children);
+            nodes.Add(node);
+        }
+    }
+
+    private void PreviewUseCheckBox_Click(
+        object sender,
+        RoutedEventArgs e) =>
+        UpdateApplyButton();
 
     private void MarkDescendantsCoveredByFolderMove(
         MoveOperation folder)
@@ -450,6 +514,8 @@ public partial class MainWindow : Window
             _operations.Add(result);
         }
 
+        RebuildScanTree();
+
         var moveCount =
             _operations.Count(x =>
                 x.Action.Equals(
@@ -504,14 +570,6 @@ public partial class MainWindow : Window
     object sender,
     RoutedEventArgs e)
     {
-        PreviewDataGrid.CommitEdit(
-            DataGridEditingUnit.Cell,
-            true);
-
-        PreviewDataGrid.CommitEdit(
-            DataGridEditingUnit.Row,
-            true);
-
         var operationsToApply =
             _operations
                 .Where(x =>

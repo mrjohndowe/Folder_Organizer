@@ -1,6 +1,7 @@
 <Window x:Class="FolderOrganizer.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:models="clr-namespace:FolderOrganizer.Models"
 		Background="{DynamicResource WindowBackgroundBrush}"
         Foreground="{DynamicResource TextBrush}"
         Title="MJD Folder Organizer"
@@ -195,86 +196,67 @@
             </StackPanel>
         </Border>
 
-        <!-- Preview -->
-        <DataGrid Grid.Row="3"
-                x:Name="PreviewDataGrid"
-                AutoGenerateColumns="False"
-				Background="{DynamicResource PanelBackgroundBrush}"
-                Foreground="{DynamicResource TextBrush}"
+        <!-- Collapsible scan preview -->
+        <Border Grid.Row="3"
+                Background="{DynamicResource PanelBackgroundBrush}"
                 BorderBrush="{DynamicResource BorderBrush}"
-                CanUserAddRows="False"
-                CanUserDeleteRows="False"
-                SelectionMode="Extended"
-                GridLinesVisibility="Horizontal"
-                IsReadOnly="False">
+                BorderThickness="1">
+            <TreeView x:Name="PreviewTreeView"
+                      ItemsSource="{Binding ScanTree}"
+                      Background="Transparent"
+                      Foreground="{DynamicResource TextBrush}">
+                <TreeView.Resources>
+                    <HierarchicalDataTemplate DataType="{x:Type models:ScanTreeNode}"
+                                              ItemsSource="{Binding Children}">
+                        <Grid Margin="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="28"/>
+                                <ColumnDefinition Width="28"/>
+                                <ColumnDefinition Width="28"/>
+                                <ColumnDefinition Width="210"/>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-            <DataGrid.Columns>
+                            <CheckBox Grid.Column="0"
+                                      IsChecked="{Binding IsMarked}"
+                                      ToolTip="Mark this item for Ignore, Remove Ignore, or folder actions."/>
 
-				<DataGridTemplateColumn
-                        Header=""
-                        Width="48"
-                        IsReadOnly="True">
+                            <CheckBox Grid.Column="1"
+                                      IsChecked="{Binding Operation.Selected}"
+                                      IsEnabled="{Binding CanApply}"
+                                      Click="PreviewUseCheckBox_Click"
+                                      ToolTip="Include this proposed move when applying changes."/>
 
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate>
+                            <svgc:SvgViewbox Grid.Column="2"
+                                              Source="{Binding Operation.IconPath}"
+                                              Width="20"
+                                              Height="20"
+                                              Stretch="Uniform"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
 
-							<svgc:SvgViewbox
-							    Source="{Binding IconPath}"
-							    Width="22"
-							    Height="22"
-							    Stretch="Uniform"
-							    HorizontalAlignment="Center"
-							    VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="3"
+                                       Text="{Binding Operation.Name}"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"/>
 
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
+                            <TextBlock Grid.Column="4"
+                                       Text="{Binding Operation.Action}"
+                                       VerticalAlignment="Center"
+                                       FontWeight="SemiBold"/>
 
-				</DataGridTemplateColumn>
-
-				<DataGridCheckBoxColumn
-	                 Header="Use"
-	                 Binding="{Binding Selected}"
-	                 Width="55"/>
-
-				<DataGridTextColumn
-					Header="File / Folder"
-					Binding="{Binding Name}"
-					IsReadOnly="True"
-					Width="180"/>
-
-				<DataGridTextColumn
-					Header="Current Location"
-					Binding="{Binding SourcePath}"
-					IsReadOnly="True"
-					Width="3*"/>
-
-				<DataGridTextColumn
-					Header="Type"
-					Binding="{Binding Type}"
-					IsReadOnly="True"
-					Width="90"/>
-
-				<DataGridTextColumn
-					Header="Action"
-					Binding="{Binding Action}"
-					IsReadOnly="True"
-					Width="90"/>
-
-				<DataGridTextColumn
-					Header="Destination"
-					Binding="{Binding DestinationPath}"
-					IsReadOnly="True"
-					Width="3*"/>
-
-				<DataGridTextColumn
-					Header="Reason"
-					Binding="{Binding Reason}"
-					IsReadOnly="True"
-					Width="2*"/>
-
-            </DataGrid.Columns>
-
-        </DataGrid>
+                            <TextBlock Grid.Column="5"
+                                       Text="{Binding Summary}"
+                                       VerticalAlignment="Center"
+                                       Opacity="0.72"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip="{Binding Operation.Reason}"/>
+                        </Grid>
+                    </HierarchicalDataTemplate>
+                </TreeView.Resources>
+            </TreeView>
+        </Border>
 
         <!-- Bottom controls -->
         <Grid Grid.Row="4"
@@ -294,7 +276,7 @@
             <StackPanel Grid.Column="1"
                         Orientation="Horizontal">
 
-				<Button Content="Ignore Selected"
+				<Button Content="Ignore Marked"
                     Width="120"
                     Height="36"
                     Margin="0,0,8,0"
